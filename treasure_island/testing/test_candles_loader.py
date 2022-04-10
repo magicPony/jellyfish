@@ -13,7 +13,7 @@ class Test(TestCase):
     @staticmethod
     def load_for_interval(interval):
         client = load_binance_client()
-        pair = 'BTCUSDT'
+        pair = 'XRPUSDT'
         start_dt = parser.parse('2021-01-09')
         end_dt = parser.parse('2021-09-09')
         interval = interval
