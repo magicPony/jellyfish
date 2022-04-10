@@ -34,7 +34,7 @@ def binance_response_to_dataframe(candles) -> pd.DataFrame:
         return [int(i) if isinstance(i, int) else float(i) for i in seq]
 
     def to_datetime(timestamp):
-        return datetime.fromtimestamp(timestamp // 1e3).strftime('%Y/%m/%d %H:%M')
+        return datetime.fromtimestamp(timestamp // 1e3).strftime('%Y-%m-%d %H:%M')
 
     candles = [to_numbers(i) for i in candles]
     candles = np.array(candles)
@@ -59,7 +59,7 @@ def binance_response_to_dataframe(candles) -> pd.DataFrame:
 
 def get_sample_frame():
     for sample_path in CANDLES_HISTORY_PATH.iterdir():
-        return pd.read_csv(sample_path)
+        return pd.read_csv(sample_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
 
     return None
 
@@ -82,7 +82,7 @@ def load_candles_chunk(
     cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.csv'
     if end_dt < datetime.now() and cache_path.exists():
         logging.debug('Loading candles history from cache')
-        return pd.read_csv(cache_path, index_col='Date')
+        return pd.read_csv(cache_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
 
     logging.debug('Downloading candles history from Binance')
     candles = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
