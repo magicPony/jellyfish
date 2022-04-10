@@ -1,13 +1,12 @@
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from backtesting import Strategy, Backtest
-from backtesting.test import SMA
 from backtesting.lib import crossover
+from backtesting.test import SMA
 
-from treasure_island.indicators import heiken_ashi
 from treasure_island.candles_loader import get_sample_frame
-
-from tempfile import TemporaryDirectory
+from treasure_island.indicators import heiken_ashi
 
 
 class SmaCross(Strategy):
@@ -36,17 +35,14 @@ class SmaCross(Strategy):
             self.position.close()
             self.sell()
 
-        else:
-            pass
-
 
 class Test(TestCase):
     def test_heiken_ashi(self):
         frame = get_sample_frame()
-        bt = Backtest(frame, SmaCross, cash=10_000, commission=.002)
+        bt = Backtest(frame, SmaCross, cash=10_000_000, commission=.002)
         stats = bt.run()
-        print(stats)
 
         with TemporaryDirectory() as temp_dir:
-            bt.plot(filename=f'{temp_dir}/test.html', plot_pl=True, plot_return=True, plot_equity=True)
+            bt.plot(filename=f'{temp_dir}/test.html')
 
+        assert stats['# Trades'] > 0
