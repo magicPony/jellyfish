@@ -1,0 +1,119 @@
+"""
+Candles history manager module that is responsive for candles downloading/saving/loading from cache
+"""
+import logging
+import math
+from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
+from tqdm import trange
+from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
+from unicorn_binance_rest_api.helpers import interval_to_milliseconds
+
+from treasure_island import CANDLES_HISTORY_PATH
+
+CANDLES_IN_CHUNK = 1000
+
+
+def clean_candles_cache():
+    """
+    Cleans candles cache data
+    """
+    for cached_file_path in CANDLES_HISTORY_PATH.iterdir():
+        cached_file_path.unlink()
+
+
+def binance_response_to_dataframe(candles) -> pd.DataFrame:
+    """
+    Transform binance response to dataframe
+    :param candles: candles sequence
+    :return: candles dataframe
+    """
+    def to_numbers(seq: list):
+        return [int(i) if isinstance(i, int) else float(i) for i in seq]
+
+    def to_datetime(timestamp):
+        return datetime.fromtimestamp(timestamp // 1e3).strftime('%Y/%m/%d %H:%M')
+
+    candles = [to_numbers(i) for i in candles]
+    candles = np.array(candles)
+    candles = pd.DataFrame({
+        'Date': candles[:, 6],
+        'Open': candles[:, 1],
+        'High': candles[:, 2],
+        'Low': candles[:, 3],
+        'Close': candles[:, 4],
+        'Volume': candles[:, 5],
+        'QuoteAssetVolume': candles[:, 7],
+        'NumOfTrades': candles[:, 8],
+        'TakerBuyAssetVolume': candles[:, 9],
+        'TakerSellAssetVolume': candles[:, 10],
+    })
+
+    candles.Date = candles.Date.apply(to_datetime)
+    candles.set_index('Date', inplace=True)
+
+    return candles
+
+
+def get_sample_frame():
+    for sample_path in CANDLES_HISTORY_PATH.iterdir():
+        return pd.read_csv(sample_path)
+
+    return None
+
+
+def load_candles_chunk(
+        client: RestManager,
+        pair_sym: str,
+        start_dt: datetime,
+        end_dt: datetime,
+        interval: str) -> pd.DataFrame:
+    """
+    Loads single chunk of candles history
+    :param client: RestManager Binance client
+    :param pair_sym: trading pair
+    :param start_dt: start date
+    :param end_dt: end date
+    :param interval: candle interval
+    :return: candles history chunk dataframe
+    """
+    cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.csv'
+    if end_dt < datetime.now() and cache_path.exists():
+        logging.debug('Loading candles history from cache')
+        return pd.read_csv(cache_path, index_col='Date')
+
+    logging.debug('Downloading candles history from Binance')
+    candles = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
+    frame = binance_response_to_dataframe(candles)
+    frame.to_csv(cache_path)
+    return frame
+
+
+def load_candles_history(
+        client: RestManager,
+        pair_sym: str,
+        start_dt: datetime,
+        end_dt: datetime,
+        interval: str) -> pd.DataFrame:
+    """
+    Downloads japanese candles from binance with cached data usage if possible
+    :param client: binance client
+    :param pair_sym: trading pair
+    :param start_dt: start date
+    :param end_dt: end date
+    :param interval: candle interval
+    :return: candles dataframe
+    """
+    interval_ms = interval_to_milliseconds(interval)
+    total_candles = (end_dt - start_dt) / timedelta(milliseconds=interval_ms)
+    result = []
+    for i in trange(int(math.ceil(total_candles / CANDLES_IN_CHUNK))):
+        chunk_start_dt = start_dt.date() + timedelta(milliseconds=CANDLES_IN_CHUNK * i*interval_ms)
+        chunk_end_dt = start_dt + timedelta(milliseconds=CANDLES_IN_CHUNK * (i+1) * interval_ms)
+        candles = load_candles_chunk(client, pair_sym, chunk_start_dt, chunk_end_dt, interval)
+        result.append(candles)
+
+    result = pd.concat(result)
+    return result.sort_index().sort_index(axis=1)
