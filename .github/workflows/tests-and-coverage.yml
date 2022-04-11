@@ -1,0 +1,23 @@
+name: Tests and coverage
+env:
+  CODECOV_VERSION: 'v0.1.15'
+on: [push]
+jobs:
+  tests-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Install package
+        run: pip install .
+
+      - name: Run linter
+        run: pylint treasure_island
+
+      - name: Generate coverage report
+        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=80
+      - uses: codecov/codecov-action@v2
+        with:
+          files: /home/runner/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}

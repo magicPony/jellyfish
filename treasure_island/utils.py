@@ -22,7 +22,10 @@ def load_binance_credentials():
 
     except FileNotFoundError as exc:
         logging.warning(exc)
-        return None
+        return {
+            'key': None,
+            'secret': None
+        }
 
 
 def plot_ohlc(backtest: Backtest, filepath=None, open_browser=True):

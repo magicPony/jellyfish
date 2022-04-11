@@ -34,4 +34,4 @@ class Test(TestCase):
 
     def test_load_binance_client(self):
         client = load_binance_client()
-        logging.info(client.get_account())
+        client.ping()

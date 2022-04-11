@@ -20,6 +20,7 @@ def clean_candles_cache():
     """
     Cleans candles cache data
     """
+    CANDLES_HISTORY_PATH.mkdir(exist_ok=True, parents=True)
     for cached_file_path in CANDLES_HISTORY_PATH.iterdir():
         cached_file_path.unlink()
 
@@ -69,6 +70,7 @@ def get_sample_frame():
     """
     Get random candles dataframe from cache if possible
     """
+    CANDLES_HISTORY_PATH.mkdir(exist_ok=True, parents=True)
     for sample_path in CANDLES_HISTORY_PATH.iterdir():
         return read_candles_frame(sample_path)
 
@@ -98,6 +100,7 @@ def load_candles_chunk(
     logging.debug('Downloading candles history from Binance')
     candles = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
     frame = binance_response_to_dataframe(candles)
+    cache_path.parent.mkdir(exist_ok=True, parents=True)
     frame.to_csv(cache_path)
     return frame
 
