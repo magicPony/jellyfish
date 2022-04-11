@@ -52,6 +52,7 @@ def binance_response_to_dataframe(candles) -> pd.DataFrame:
     })
 
     candles.Date = candles.Date.apply(to_datetime)
+    candles.Date = pd.to_datetime(candles.Date)
     candles.set_index('Date', inplace=True)
 
     return candles

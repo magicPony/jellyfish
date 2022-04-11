@@ -24,8 +24,7 @@ class Test(TestCase):
         data = load_candles_history(client, pair, start_dt, end_dt, interval)
         assert len(data) > 0
         cached_data = load_candles_history(client, pair, start_dt, end_dt, interval)
-        # TODO: try to get rid of drop=True
-        assert_frame_equal(data.reset_index(drop=True), cached_data.reset_index(drop=True))
+        assert_frame_equal(data, cached_data)
 
     def test_load_btc_history_1d(self):
         Test.load_for_interval('1d')
