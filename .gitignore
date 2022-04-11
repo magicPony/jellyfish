@@ -7,5 +7,4 @@
 *.DS_Store
 *.egg-info/
 *.idea
-*private_data
-*.cache
+*resources*

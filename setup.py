@@ -10,7 +10,8 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            # 'dump-binance-creds=treasure_island.creds_manager:dump_binance'
+            'rm-candles=treasure_island.cli:clean_candles_cache',
+            'load-candles=treasure_island.cli:download_candles'
         ]
     }
 )

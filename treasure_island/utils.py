@@ -35,10 +35,9 @@ def plot_ohlc(backtest: Backtest, filepath=None, open_browser=True):
     """
     with TemporaryDirectory() as temp_dir:
         if filepath is None:
-            filepath = f'{temp_dir.name}/test.html'
+            filepath = f'{temp_dir}/test.html'
 
         backtest.plot(filename=filepath, show_legend=False, open_browser=open_browser)
-        temp_dir.cleanup()
 
 
 def load_binance_client():
