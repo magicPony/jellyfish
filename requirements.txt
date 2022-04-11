@@ -4,6 +4,7 @@ tqdm>=4.64.0
 setuptools==62.0.0
 backtesting~=0.3.3
 pytest
+coverage
 pylint
 unicorn-binance-rest-api
 python-dateutil~=2.8.2
