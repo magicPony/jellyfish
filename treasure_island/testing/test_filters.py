@@ -18,7 +18,6 @@ class Test(TestCase):
         pair = 'XRPUSDT'
         interval = '1h'
         frame = load_candles_history(client, pair, start_dt, end_dt, interval)
-        frame1 = load_candles_history(client, pair, start_dt, end_dt, interval)
 
         to_heiken_ashi(frame)
 
