@@ -1,3 +1,6 @@
+"""
+List of manipulation of candlestick charts
+"""
 import numpy as np
 import pandas as pd
 
@@ -8,21 +11,24 @@ def heiken_ashi(
         high_col='High',
         low_col='Low',
         close_col='Close'):
+    """
+    Return heiken ashi candlestick chart
+    """
     ha_open = []
     ha_high = []
     ha_low = []
     ha_close = []
     for _, row in ohlc.iterrows():
-        open, high, low, close = row[open_col], row[high_col], row[low_col], row[close_col]
+        open_, high, low, close = row[open_col], row[high_col], row[low_col], row[close_col]
         if len(ha_open) == 0:
-            ha_open.append(open)
+            ha_open.append(open_)
             ha_high.append(high)
             ha_low.append(low)
             ha_close.append(close)
             continue
 
         ha_open.append((ha_open[-1] + ha_close[-1]) / 2)
-        ha_close.append((open + high + low + close) / 4)
+        ha_close.append((open_ + high + low + close) / 4)
         ha_low.append(min(low, ha_open[-1], ha_close[-1]))
         ha_high.append(max(high, ha_open[-1], ha_close[-1]))
 
