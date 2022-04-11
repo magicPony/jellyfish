@@ -1,41 +1,18 @@
 from datetime import datetime, timedelta
-from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from backtesting import Strategy, Backtest
-from backtesting.lib import crossover
-from backtesting.test import SMA
+from backtesting import Backtest
 
 from treasure_island.candles_loader import load_candles_history
-from treasure_island.indicators import heiken_ashi
-from treasure_island.utils import load_binance_client
+from treasure_island.indicator import heiken_ashi
+from treasure_island.stretegy import SmaCross
+from treasure_island.utils import load_binance_client, plot_ohlc
 
 
-class SmaCrossWithHaIndicator(Strategy):
-    # Define the two MA lags as *class variables*
-    # for later optimization
-    n1 = 50
-    n2 = 200
-
+class SmaCrossWithHaIndicator(SmaCross):
     def init(self):
-        # Precompute the two moving averages
-        self.sma1 = self.I(SMA, self.data.Close, self.n1)
-        self.sma2 = self.I(SMA, self.data.Close, self.n2)
-
         self.I(heiken_ashi, self.data.df, name='Heiken Ashi')
-
-    def next(self):
-        # If sma1 crosses above sma2, close any existing
-        # short trades, and buy the asset
-        if crossover(self.sma1, self.sma2):
-            self.position.close()
-            self.buy()
-
-        # Else, if sma1 crosses below sma2, close any existing
-        # long trades, and sell the asset
-        elif crossover(self.sma2, self.sma1):
-            self.position.close()
-            self.sell()
+        super(SmaCrossWithHaIndicator, self).init()
 
 
 class Test(TestCase):
@@ -54,8 +31,6 @@ class Test(TestCase):
 
         bt = Backtest(frame, SmaCrossWithHaIndicator, cash=10_000, commission=.002, trade_on_close=True)
         stats = bt.run()
-
-        with TemporaryDirectory() as temp_dir:
-            bt.plot(filename=f'{temp_dir}/test.html')
+        plot_ohlc(bt, open_browser=False)
 
         assert stats['# Trades'] > 0

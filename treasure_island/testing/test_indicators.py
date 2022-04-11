@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from treasure_island.indicators import heiken_ashi
+from treasure_island.indicator import heiken_ashi
 from treasure_island.candles_loader import get_sample_frame
 
 

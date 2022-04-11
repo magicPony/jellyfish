@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta
-from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from backtesting import Backtest
 
 from treasure_island.candles_loader import load_candles_history
-from treasure_island.filters import to_heiken_ashi
-from treasure_island.testing import DummyStrategy
-from treasure_island.utils import load_binance_client
+from treasure_island.stretegy import DummyStrategy
+from treasure_island.transform import to_heiken_ashi
+from treasure_island.utils import load_binance_client, plot_ohlc
 
 
 class Test(TestCase):
@@ -23,5 +22,4 @@ class Test(TestCase):
 
         bt = Backtest(frame, DummyStrategy)
         bt.run()
-        with TemporaryDirectory() as temp_dir:
-            bt.plot(filename=f'{temp_dir}/test.html', show_legend=False)
+        plot_ohlc(bt, open_browser=False)
