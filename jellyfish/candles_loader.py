@@ -127,7 +127,7 @@ def load_candles_history(
              for i in range(chunks_num)] + [end_dt]
 
     result = []
-    for chunk_start_dt, chunk_end_dt in tqdm(zip(dates[:-1], dates[1:])):
+    for chunk_start_dt, chunk_end_dt in tqdm(list(zip(dates[:-1], dates[1:]))):
         candles = load_candles_chunk(client, pair_sym, chunk_start_dt, chunk_end_dt, interval)
         result.append(candles)
 
