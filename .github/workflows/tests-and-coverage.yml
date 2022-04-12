@@ -16,7 +16,7 @@ jobs:
         run: pylint treasure_island
 
       - name: Generate coverage report
-        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=80
+        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=90
       - uses: codecov/codecov-action@v2
         with:
           files: /home/runner/coverage.xml
