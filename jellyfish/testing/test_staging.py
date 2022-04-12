@@ -33,4 +33,4 @@ class Test(TestCase):
         stats = bt.run()
         plot_ohlc(bt, open_browser=False)
 
-        assert stats['# Trades'] > 0
+        self.assertGreater(stats['# Trades'], 0)

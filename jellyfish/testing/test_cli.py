@@ -7,7 +7,8 @@ from jellyfish import cli
 
 class TestSyscall(TestCase):
     def test_clean_cache(self):
-        assert os.system('rm-candles') == 0
+        ret = os.system('rm-candles')
+        self.assertEqual(ret, 0)
 
     def test_download_candles(self):
         pair = 'BTCUSDT'
@@ -15,14 +16,15 @@ class TestSyscall(TestCase):
         interval = '4h'
         cmd = f'load-candles {pair} --from {from_str} -i {interval}'
 
-        assert os.system(cmd) == 0
+        ret = os.system(cmd)
+        self.assertEqual(ret, 0)
 
 
 class TestDirectCall(TestCase):
     def test_clean_cache(self):
         runner = CliRunner()
         result = runner.invoke(cli.clean_candles_cache)
-        assert result.exit_code == 0
+        self.assertEqual(result.exit_code, 0)
 
     def test_download_candles(self):
         pair = 'BTCUSDT'
@@ -36,7 +38,7 @@ class TestDirectCall(TestCase):
             '--interval', interval
         ])
 
-        assert result.exit_code == 0
+        self.assertEqual(result.exit_code, 0)
 
 
 
