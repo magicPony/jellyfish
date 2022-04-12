@@ -11,7 +11,7 @@ from tqdm import trange
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
-from treasure_island import CANDLES_HISTORY_PATH
+from marlin import CANDLES_HISTORY_PATH
 
 CANDLES_IN_CHUNK = 1000
 

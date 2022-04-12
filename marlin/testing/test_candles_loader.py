@@ -4,9 +4,9 @@ from pandas.testing import assert_frame_equal
 
 from unittest import TestCase
 
-from treasure_island import CANDLES_HISTORY_PATH
-from treasure_island.utils import load_binance_client
-from treasure_island.candles_loader import load_candles_history, clean_candles_cache
+from marlin import CANDLES_HISTORY_PATH
+from marlin.utils import load_binance_client
+from marlin.candles_loader import load_candles_history, clean_candles_cache
 
 
 class Test(TestCase):

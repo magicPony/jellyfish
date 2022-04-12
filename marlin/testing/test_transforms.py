@@ -3,10 +3,10 @@ from unittest import TestCase
 
 from backtesting import Backtest
 
-from treasure_island.candles_loader import load_candles_history
-from treasure_island.stretegy import DummyStrategy
-from treasure_island.transform import to_heiken_ashi
-from treasure_island.utils import load_binance_client, plot_ohlc
+from marlin.candles_loader import load_candles_history
+from marlin.stretegy import DummyStrategy
+from marlin.transform import to_heiken_ashi
+from marlin.utils import load_binance_client, plot_ohlc
 
 
 class Test(TestCase):

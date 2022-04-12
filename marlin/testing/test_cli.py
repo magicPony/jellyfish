@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 from click.testing import CliRunner
 
-from treasure_island import cli
+from marlin import cli
 
 
 class TestSyscall(TestCase):

@@ -3,7 +3,7 @@ List of manipulation of candlestick charts
 """
 import pandas as pd
 
-from treasure_island import indicator
+from marlin import indicator
 
 
 def to_heiken_ashi(ohlc: pd.DataFrame,

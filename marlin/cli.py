@@ -7,7 +7,7 @@ from datetime import datetime
 import click
 from dateutil import parser
 
-from treasure_island import candles_loader, utils
+from marlin import candles_loader, utils
 
 
 def disable_warnings():

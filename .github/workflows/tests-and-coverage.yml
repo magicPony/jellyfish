@@ -13,7 +13,7 @@ jobs:
         run: pip install .
 
       - name: Run linter
-        run: pylint treasure_island
+        run: pylint marlin
 
       - name: Generate coverage report
         run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=90

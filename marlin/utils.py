@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from backtesting import Backtest
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
-from treasure_island import PRIVATE_DATA_PATH
+from marlin import PRIVATE_DATA_PATH
 
 
 def load_binance_credentials():
