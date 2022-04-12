@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 from click.testing import CliRunner
 
-from marlin import cli
+from jellyfish import cli
 
 
 class TestSyscall(TestCase):

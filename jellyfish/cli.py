@@ -7,7 +7,7 @@ from datetime import datetime
 import click
 from dateutil import parser
 
-from marlin import candles_loader, utils
+from jellyfish import candles_loader, utils
 
 
 def disable_warnings():

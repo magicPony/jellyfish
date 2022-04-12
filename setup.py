@@ -5,13 +5,13 @@ with open('requirements.txt') as f:
 
 setup(
     version='0.1',
-    name='marlin',
+    name='jellyfish',
     packages=find_packages(),
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'rm-candles=marlin.cli:clean_candles_cache',
-            'load-candles=marlin.cli:download_candles'
+            'rm-candles=jellyfish.cli:clean_candles_cache',
+            'load-candles=jellyfish.cli:download_candles'
         ]
     }
 )

@@ -3,10 +3,10 @@ from unittest import TestCase
 
 from backtesting import Backtest
 
-from marlin.candles_loader import load_candles_history
-from marlin.indicator import heiken_ashi
-from marlin.stretegy import SmaCross
-from marlin.utils import load_binance_client, plot_ohlc
+from jellyfish.candles_loader import load_candles_history
+from jellyfish.indicator import heiken_ashi
+from jellyfish.stretegy import SmaCross
+from jellyfish.utils import load_binance_client, plot_ohlc
 
 
 class SmaCrossWithHaIndicator(SmaCross):

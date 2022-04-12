@@ -3,10 +3,10 @@ from unittest import TestCase
 
 from backtesting import Backtest
 
-from marlin.candles_loader import load_candles_history
-from marlin.stretegy import DummyStrategy
-from marlin.transform import to_heiken_ashi
-from marlin.utils import load_binance_client, plot_ohlc
+from jellyfish.candles_loader import load_candles_history
+from jellyfish.stretegy import DummyStrategy
+from jellyfish.transform import to_heiken_ashi
+from jellyfish.utils import load_binance_client, plot_ohlc
 
 
 class Test(TestCase):
