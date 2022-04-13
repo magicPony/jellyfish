@@ -17,7 +17,7 @@ class Test(TestCase):
         interval = interval
 
         clean_candles_cache()
-        self.assertEqual(list(CANDLES_HISTORY_PATH.iterdir()), 0)
+        self.assertEqual(len(list(CANDLES_HISTORY_PATH.iterdir())), 0)
 
         data = load_candles_history(client, pair, start_dt, end_dt, interval)
         self.assertGreater(len(data), 0)
