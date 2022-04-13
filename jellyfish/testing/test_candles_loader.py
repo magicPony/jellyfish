@@ -12,8 +12,8 @@ class Test(TestCase):
     def load_for_interval(self, interval):
         client = load_binance_client()
         pair = 'XRPUSDT'
-        start_dt = parser.parse('2021-01-09')
-        end_dt = parser.parse('2021-09-09')
+        start_dt = parser.parse('2021-01-09 12:22')
+        end_dt = parser.parse('2021-09-09 10:00')
         interval = interval
 
         clean_candles_cache()
@@ -22,7 +22,7 @@ class Test(TestCase):
         data = load_candles_history(client, pair, start_dt, end_dt, interval)
         self.assertGreater(len(data), 0)
 
-        cached_data = load_candles_history(client, pair, start_dt, end_dt, interval)
+        cached_data = load_candles_history(None, pair, start_dt, end_dt, interval)
         assert_frame_equal(data, cached_data)
 
     def test_load_btc_history_1d(self):
