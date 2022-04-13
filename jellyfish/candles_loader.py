@@ -3,11 +3,11 @@ Candles history manager module that is responsive for candles downloading/saving
 """
 import logging
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import numpy as np
 import pandas as pd
-from tqdm import trange
+from tqdm import tqdm
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
@@ -80,8 +80,8 @@ def get_sample_frame():
 def load_candles_chunk(
         client: RestManager,
         pair_sym: str,
-        start_dt: datetime,
-        end_dt: datetime,
+        start_dt: date,
+        end_dt: date,
         interval: str) -> pd.DataFrame:
     """
     Loads single chunk of candles history
@@ -122,11 +122,13 @@ def load_candles_history(
     """
     interval_ms = interval_to_milliseconds(interval)
     total_candles = (end_dt - start_dt) / timedelta(milliseconds=interval_ms)
+    chunks_num = math.ceil(total_candles / CANDLES_IN_CHUNK)
+    dates = [(start_dt + timedelta(milliseconds=i*interval_ms*CANDLES_IN_CHUNK)).date()
+             for i in range(chunks_num)] + [end_dt]
+
     result = []
-    for i in trange(int(math.ceil(total_candles / CANDLES_IN_CHUNK))):
-        chunk_start_dt = start_dt.date() + timedelta(milliseconds=CANDLES_IN_CHUNK * i*interval_ms)
-        chunk_end_dt = start_dt + timedelta(milliseconds=CANDLES_IN_CHUNK * (i+1) * interval_ms)
-        candles = load_candles_chunk(client, pair_sym, chunk_start_dt, chunk_end_dt, interval)
+    for start_dt, end_dt in tqdm(zip(dates[:-1], dates[1:])):
+        candles = load_candles_chunk(client, pair_sym, start_dt, end_dt, interval)
         result.append(candles)
 
     result = pd.concat(result)
