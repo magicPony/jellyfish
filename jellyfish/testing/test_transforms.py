@@ -1,10 +1,7 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from backtesting import Backtest
-
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.stretegy import DummyStrategy
 from jellyfish.transform import to_heiken_ashi
 from jellyfish.utils import load_binance_client, plot_ohlc
 
@@ -19,7 +16,4 @@ class Test(TestCase):
         frame = load_candles_history(client, pair, start_dt, end_dt, interval)
 
         to_heiken_ashi(frame)
-
-        bt = Backtest(frame, DummyStrategy)
-        bt.run()
-        plot_ohlc(bt, open_browser=False)
+        plot_ohlc(frame.reset_index())

@@ -1,7 +1,6 @@
 """
 Command line interface communication
 """
-import warnings
 from datetime import datetime
 
 import click
@@ -10,19 +9,12 @@ from dateutil import parser
 from jellyfish import candles_loader, utils
 
 
-def disable_warnings():
-    """
-    Disables all warnings
-    """
-    warnings.filterwarnings("ignore")
-
-
 @click.command()
 def clean_candles_cache():
     """
     Cleans candlestick cache directory
     """
-    disable_warnings()
+    utils.disable_warnings()
     candles_loader.clean_candles_cache()
 
 
@@ -41,7 +33,7 @@ def download_candles(pair, from_date, to_date, interval):
         interval: candle interval
 
     """
-    disable_warnings()
+    utils.disable_warnings()
     candles_loader.load_candles_history(
         client=utils.load_binance_client(),
         pair_sym=pair,

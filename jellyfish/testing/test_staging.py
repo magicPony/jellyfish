@@ -4,15 +4,9 @@ from unittest import TestCase
 from backtesting import Backtest
 
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.indicator import heiken_ashi
+from jellyfish.transform import to_heiken_ashi
 from jellyfish.stretegy import SmaCross
-from jellyfish.utils import load_binance_client, plot_ohlc
-
-
-class SmaCrossWithHaIndicator(SmaCross):
-    def init(self):
-        self.I(heiken_ashi, self.data.df, name='Heiken Ashi')
-        super(SmaCrossWithHaIndicator, self).init()
+from jellyfish.utils import load_binance_client, plot_ohlc_from_backtest
 
 
 class Test(TestCase):
@@ -28,9 +22,10 @@ class Test(TestCase):
         frame = frame.reset_index()
         frame.Date = frame.Date.dt.date
         frame.set_index('Date', inplace=True)
+        to_heiken_ashi(frame)
 
-        bt = Backtest(frame, SmaCrossWithHaIndicator, cash=10_000, commission=.002, trade_on_close=True)
+        bt = Backtest(frame, SmaCross, cash=10_000, commission=.002)
         stats = bt.run()
-        plot_ohlc(bt, open_browser=False)
+        plot_ohlc_from_backtest(bt, open_browser=False)
 
         self.assertGreater(stats['# Trades'], 0)
