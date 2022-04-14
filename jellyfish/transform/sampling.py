@@ -46,6 +46,35 @@ def _generic_sampling(ohlc: pd.DataFrame, agg: dict, condition_cb):
     return pd.DataFrame(data, columns=agg.keys())
 
 
+def line_break_bars(ohlc: pd.DataFrame,
+                    n: int = 3,
+                    close_col=CLOSE,
+                    agg: dict = None):
+    """
+    Transform initial chart to line break
+
+    Args:
+        ohlc: dataframe with candles
+        n: number of 'lookback' candles
+        close_col: close column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    def condition(ohlc_sample: pd.DataFrame):
+        sample_size = len(ohlc_sample)
+        if sample_size <= n:
+            return False
+
+        prices = list(ohlc_sample[close_col])[-n:]
+        return max(prices) <= prices[-1] or min(prices) >= prices[-1]
+
+    return _generic_sampling(ohlc, agg, condition)
+
+
 def tick_bars(ohlc: pd.DataFrame,
               trades_per_candle,
               trades_col=NUM_OF_TRADES,
