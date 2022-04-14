@@ -5,15 +5,14 @@ import pandas as pd
 from tqdm import trange
 
 
-# TODO: join every column of candle instead of major OHLCV
+# TODO: refactor method to generalize columns sampling
 def tick_bars(ohlc: pd.DataFrame,
-                 trades_per_candle,
-                 open_col='Open', high_col='High',
-                 low_col='Low', close_col='Close',
-                 volume_col='Volume', trades_col='NumOfTrades'):
+              trades_per_candle,
+              open_col='Open', high_col='High',
+              low_col='Low', close_col='Close',
+              volume_col='Volume', trades_col='NumOfTrades'):
     """
     Transform chart to tick bars chart
-    More info here: https://towardsdatascience.com/advanced-candlesticks-for-machine-learning-i-tick-bars-a8b93728b4c5
 
     Args:
         ohlc: dataframe with candles
