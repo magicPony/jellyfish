@@ -13,7 +13,7 @@ from jellyfish import PRIVATE_DATA_PATH, CACHE_PATH
 from jellyfish.stretegy import DummyStrategy
 
 
-def load_binance_credentials():
+def _load_binance_credentials():
     """
     Loads json with Binance API credentials
     :return: json with creds
@@ -61,7 +61,7 @@ def load_binance_client():
     Loads Binance reset manager client
     :return: RestManager client
     """
-    creds = load_binance_credentials()
+    creds = _load_binance_credentials()
     return RestManager(creds['key'], creds['secret'])
 
 
@@ -70,3 +70,37 @@ def disable_warnings():
     Disables all warnings
     """
     warnings.filterwarnings("ignore")
+
+
+def last(sequence):
+    """
+    Get last element from the sequence
+    Args:
+        sequence: subscriptable sequence
+
+    Returns: last element from the sequence
+    """
+    return sequence[len(sequence)-1]
+
+
+def first(sequence):
+    """
+    Get first element from the sequence
+    Args:
+        sequence: subscriptable sequence
+
+    Returns: first element from the sequence
+    """
+    return sequence[0]
+
+
+def collapse_candle(data: pd.DataFrame, agg: dict):
+    """
+    Downsample OHLC candle
+    Args:
+        data: OHLC frame
+        agg: aggregation dict
+
+    Returns: frame with aggregated result
+    """
+    return [data[col].agg(func) for col, func in agg.items()]
