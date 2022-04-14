@@ -1,9 +1,12 @@
+"""
+List of possible sampling technics
+"""
 import pandas as pd
 from tqdm import trange
 
 
 # TODO: join every column of candle instead of major OHLCV
-def to_tick_bars(ohlc: pd.DataFrame,
+def tick_bars(ohlc: pd.DataFrame,
                  trades_per_candle,
                  open_col='Open', high_col='High',
                  low_col='Low', close_col='Close',

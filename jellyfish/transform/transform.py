@@ -18,9 +18,6 @@ def to_log_prices(ohlc: pd.DataFrame,
         high_col: high price column name
         low_col: low price column name
         close_col: close price column name
-
-    Returns:
-
     """
     for col in [open_col, high_col, low_col, close_col]:
         ohlc[col] = ohlc[col].apply(np.log)

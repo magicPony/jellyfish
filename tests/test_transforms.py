@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.transform import feature, sampling
+from jellyfish import transform
 from jellyfish.utils import load_binance_client, plot_ohlc
 
 
@@ -15,15 +15,15 @@ def load_sample_data():
     return load_candles_history(client, pair, start_dt, end_dt, interval)
 
 
-class TestFeatures(TestCase):
+class TestTransform(TestCase):
     def test_heiken_ashi(self):
         frame = load_sample_data()
-        feature.to_heiken_ashi(frame)
+        transform.to_heiken_ashi(frame)
         plot_ohlc(frame.reset_index())
 
     def test_log_prices(self):
         frame = load_sample_data()
-        feature.to_log_prices(frame)
+        transform.to_log_prices(frame)
         plot_ohlc(frame.reset_index())
 
 
@@ -36,5 +36,5 @@ class TestSampling(TestCase):
         interval = '15m'
 
         frame = load_candles_history(client, pair, start_dt, end_dt, interval)
-        frame = sampling.to_tick_bars(frame, 2000000)
+        frame = transform.sampling.tick_bars(frame, 2000000)
         plot_ohlc(frame.reset_index())
