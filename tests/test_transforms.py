@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from unittest import TestCase
 
@@ -51,3 +52,8 @@ class TestSampling(TestCase):
         frame = TestSampling.load_sample_data()
         frame = transform.sampling.volume_bars(frame.reset_index(), 100000)
         utils.plot_ohlc(frame.reset_index())
+
+    def test_renko(self):
+        frame = TestSampling.load_sample_data()[-1000:]
+        frame = transform.sampling.renko_bars(frame.reset_index())
+        utils.plot_ohlc(frame)
