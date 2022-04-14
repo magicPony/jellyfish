@@ -21,10 +21,35 @@ DEFAULT_SAMPLING_AGG = {
 }
 
 
+def _generic_sampling(ohlc: pd.DataFrame, agg: dict, condition_cb):
+    """
+    Generic sampling backbone
+    Args:
+        ohlc: dataframe with candles
+        agg: candle downsampling aggregation info
+        condition_cb: sampling condition callback
+
+    Returns: downsampled data
+    """
+    data = []
+    i = 0
+    progress = trange(len(ohlc))
+    while i < len(ohlc):
+        j = i + 1
+        while j < len(ohlc) and not condition_cb(ohlc[i:j]):
+            j += 1
+
+        data.append(utils.collapse_candle(ohlc[i:j], agg))
+        progress.update(j - i)
+        i = j
+
+    return pd.DataFrame(data, columns=agg.keys())
+
+
 def tick_bars(ohlc: pd.DataFrame,
               trades_per_candle,
               trades_col=NUM_OF_TRADES,
-              agg=None):
+              agg: dict = None):
     """
     Transform chart to tick bars chart
 
@@ -33,21 +58,13 @@ def tick_bars(ohlc: pd.DataFrame,
         trades_per_candle: number of trader limit per one candle
         trades_col: trades number column name
         agg: candle downsampling aggregation info
+
+    Returns: downsampled data
     """
     if agg is None:
         agg = DEFAULT_SAMPLING_AGG
 
-    data = []
-    i = 0
-    progress = trange(len(ohlc))
-    while i < len(ohlc):
-        j = i + 1
-        while j < len(ohlc) and ohlc[trades_col][i:j].sum() < trades_per_candle:
-            j += 1
+    def condition(ohlc_sample: pd.DataFrame):
+        return ohlc_sample[trades_col].sum() >= trades_per_candle
 
-        candle = ohlc.iloc[i:j]
-        progress.update(j - i)
-        i = j
-        data.append(utils.collapse_candle(candle, agg))
-
-    return pd.DataFrame(data, columns=agg.keys())
+    return _generic_sampling(ohlc, agg, condition)
