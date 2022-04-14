@@ -36,5 +36,5 @@ class TestSampling(TestCase):
         interval = '15m'
 
         frame = load_candles_history(client, pair, start_dt, end_dt, interval)
-        frame = transform.sampling.tick_bars(frame, 2000000)
+        frame = transform.sampling.tick_bars(frame.reset_index(), 2000000)
         plot_ohlc(frame.reset_index())

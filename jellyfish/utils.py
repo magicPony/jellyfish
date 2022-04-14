@@ -80,7 +80,7 @@ def last(sequence):
 
     Returns: last element from the sequence
     """
-    return sequence[len(sequence)-1]
+    return list(sequence)[len(sequence)-1]
 
 
 def first(sequence):
@@ -91,7 +91,7 @@ def first(sequence):
 
     Returns: first element from the sequence
     """
-    return sequence[0]
+    return list(sequence)[0]
 
 
 def collapse_candle(data: pd.DataFrame, agg: dict):

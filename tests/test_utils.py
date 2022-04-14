@@ -22,8 +22,8 @@ class Test(TestCase):
             'a': np.max,
             'b': np.mean,
             'c': utils.first,
-            'd': utils.last
+            'd': 'sum'
         })
 
-        self.assertEqual(downsampled_data, [6, 3.5, 1, 6])
+        self.assertEqual(downsampled_data, [6, 3.5, 1, 21])
 
