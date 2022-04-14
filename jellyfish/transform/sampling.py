@@ -68,3 +68,27 @@ def tick_bars(ohlc: pd.DataFrame,
         return ohlc_sample[trades_col].sum() >= trades_per_candle
 
     return _generic_sampling(ohlc, agg, condition)
+
+
+def volume_bars(ohlc: pd.DataFrame,
+                volume_per_candle,
+                volume_col=VOLUME,
+                agg: dict = None):
+    """
+    Transform chart to volume bars chart
+
+    Args:
+        ohlc: dataframe with candles
+        volume_per_candle: volume per one candle
+        volume_col: volume column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    def condition(ohlc_sample: pd.DataFrame):
+        return ohlc_sample[volume_col].sum() >= volume_per_candle
+
+    return _generic_sampling(ohlc, agg, condition)
