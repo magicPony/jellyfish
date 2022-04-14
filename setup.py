@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 setup(
     version='0.1',
     name='jellyfish',
-    packages=find_packages(),
+    packages=['jellyfish'],
     install_requires=requirements,
     entry_points={
         'console_scripts': [
