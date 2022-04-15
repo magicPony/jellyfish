@@ -62,3 +62,8 @@ class TestSampling(TestCase):
         frame = TestSampling.load_sample_data()[-1000:]
         frame = transform.sampling.dollar_bars(frame.reset_index(), 1e8)
         utils.plot_ohlc(frame)
+
+    def test_tick_imbalance(self):
+        frame = TestSampling.load_sample_data()[-1000:]
+        frame = transform.sampling.tick_imbalance(frame.reset_index(), 7)
+        utils.plot_ohlc(frame)

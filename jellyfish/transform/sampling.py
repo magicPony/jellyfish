@@ -52,6 +52,25 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
     return pd.DataFrame(data, columns=agg.keys())
 
 
+def tick_imbalance(ohlc: pd.DataFrame,
+                   imbalance,
+                   close_col=CLOSE,
+                   agg: dict = None):
+    """
+    Transform initial chart to line break
+
+    Args:
+        ohlc: dataframe with candles
+        imbalance: tick imbalance threshold
+        close_col: close column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    condition = triggers.tick_imbalance(close_col, imbalance)
+    return _generic_sampling(ohlc, condition, agg)
+
+
 def line_break_bars(ohlc: pd.DataFrame,
                     lookback: int = 3,
                     close_col=CLOSE,

@@ -24,6 +24,23 @@ def line_break(close_col, lookback):
     return condition
 
 
+def tick_imbalance(close_col, imbalance):
+    """
+    Tick imbalance chart trigger callback
+    Args:
+        close_col: close column name
+        imbalance: threshold imbalance value
+
+    Returns: trigger callable
+    """
+    def condition(ohlc: pd.DataFrame):
+        closes = ohlc[close_col]
+        sign = closes / closes.abs()
+        return sign.abs().sum() >= imbalance
+
+    return condition
+
+
 def apply_column_greater(column_name, func, thr):
     """
     Generic "apply and compare" trigger callback
