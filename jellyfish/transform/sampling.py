@@ -6,7 +6,8 @@ from tqdm import trange
 from stocktrends import indicators
 
 from jellyfish import utils
-from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TRADES)
+from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE,
+                                 NUM_OF_TRADES, QUOTE_ASSET_VOLUME)
 
 DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
     OPEN: utils.first,
@@ -120,6 +121,30 @@ def volume_bars(ohlc: pd.DataFrame,
 
     def condition(ohlc_sample: pd.DataFrame):
         return ohlc_sample[volume_col].sum() >= volume_per_candle
+
+    return _generic_sampling(ohlc, agg, condition)
+
+
+def dollar_bars(ohlc: pd.DataFrame,
+                dollars_per_candle,
+                dollars_col=QUOTE_ASSET_VOLUME,
+                agg: dict = None):
+    """
+    Transform chart to dollar bars
+
+    Args:
+        ohlc: dataframe with candles
+        dollars_per_candle: dollars volume per one candle
+        dollars_col: dollars volume column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    def condition(ohlc_sample: pd.DataFrame):
+        return ohlc_sample[dollars_col].sum() >= dollars_per_candle
 
     return _generic_sampling(ohlc, agg, condition)
 

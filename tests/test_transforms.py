@@ -40,7 +40,7 @@ class TestSampling(TestCase):
 
     def test_tick_bars(self):
         frame = TestSampling.load_sample_data()
-        frame = transform.sampling.tick_bars(frame.reset_index(), 2000000)
+        frame = transform.sampling.tick_bars(frame.reset_index(), 2e6)
         utils.plot_ohlc(frame.reset_index())
 
     def test_line_break_bars(self):
@@ -49,11 +49,16 @@ class TestSampling(TestCase):
         utils.plot_ohlc(frame.reset_index())
 
     def test_volume_bars(self):
-        frame = TestSampling.load_sample_data()
-        frame = transform.sampling.volume_bars(frame.reset_index(), 100000)
+        frame = TestSampling.load_sample_data()[-1000:]
+        frame = transform.sampling.volume_bars(frame.reset_index(), 2e3)
         utils.plot_ohlc(frame.reset_index())
 
     def test_renko(self):
         frame = TestSampling.load_sample_data()[-1000:]
         frame = transform.sampling.renko_bars(frame.reset_index())
+        utils.plot_ohlc(frame)
+
+    def test_dollars(self):
+        frame = TestSampling.load_sample_data()[-1000:]
+        frame = transform.sampling.dollar_bars(frame.reset_index(), 1e8)
         utils.plot_ohlc(frame)
