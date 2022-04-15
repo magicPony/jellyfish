@@ -3,9 +3,11 @@ List of possible sampling technics
 """
 import pandas as pd
 from tqdm import trange
+from stocktrends import indicators
 
 from jellyfish import utils
-from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TRADES)
+from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE,
+                                 NUM_OF_TRADES, QUOTE_ASSET_VOLUME)
 
 DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
     OPEN: utils.first,
@@ -44,6 +46,35 @@ def _generic_sampling(ohlc: pd.DataFrame, agg: dict, condition_cb):
         i = j
 
     return pd.DataFrame(data, columns=agg.keys())
+
+
+def line_break_bars(ohlc: pd.DataFrame,
+                    lookback: int = 3,
+                    close_col=CLOSE,
+                    agg: dict = None):
+    """
+    Transform initial chart to line break
+
+    Args:
+        ohlc: dataframe with candles
+        lookback: number of 'lookback' candles
+        close_col: close column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    def condition(ohlc_sample: pd.DataFrame):
+        sample_size = len(ohlc_sample)
+        if sample_size <= lookback:
+            return False
+
+        prices = list(ohlc_sample[close_col])[-lookback:]
+        return max(prices) <= prices[-1] or min(prices) >= prices[-1]
+
+    return _generic_sampling(ohlc, agg, condition)
 
 
 def tick_bars(ohlc: pd.DataFrame,
@@ -92,3 +123,80 @@ def volume_bars(ohlc: pd.DataFrame,
         return ohlc_sample[volume_col].sum() >= volume_per_candle
 
     return _generic_sampling(ohlc, agg, condition)
+
+
+def dollar_bars(ohlc: pd.DataFrame,
+                dollars_per_candle,
+                dollars_col=QUOTE_ASSET_VOLUME,
+                agg: dict = None):
+    """
+    Transform chart to dollar bars
+
+    Args:
+        ohlc: dataframe with candles
+        dollars_per_candle: dollars volume per one candle
+        dollars_col: dollars volume column name
+        agg: candle downsampling aggregation info
+
+    Returns: downsampled data
+    """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    def condition(ohlc_sample: pd.DataFrame):
+        return ohlc_sample[dollars_col].sum() >= dollars_per_candle
+
+    return _generic_sampling(ohlc, agg, condition)
+
+
+def renko_bars(ohlc: pd.DataFrame,
+               brick_size=2,
+               open_col=OPEN,
+               high_col=HIGH,
+               low_col=LOW,
+               close_col=CLOSE,
+               volume_col=VOLUME,
+               date_col=DATE):
+    """
+    Transform chart to renko
+
+    Args:
+        ohlc: dataframe with candles
+        brick_size: renko brick size
+        open_col: open column name
+        high_col: high column name
+        low_col: low column name
+        close_col: close column name
+        volume_col: volume column name
+        date_col: date column name
+
+    Returns: renko chart
+    """
+    def rename(columns: pd.Index, rename_map: dict):
+        res = list(range(len(columns)))
+        for i, name in enumerate(columns):
+            if name in rename_map and rename_map[name] is not None:
+                res[i] = rename_map[name]
+
+        return res
+
+    rename_map = {
+        open_col: OPEN.lower(),
+        high_col: HIGH.lower(),
+        low_col: LOW.lower(),
+        close_col: CLOSE.lower(),
+        volume_col: VOLUME.lower(),
+        date_col: DATE.lower()
+    }
+
+    ohlc.columns = rename(ohlc.columns, rename_map)
+
+    renko = indicators.Renko(ohlc)
+    renko.brick_size = brick_size
+    renko.chart_type = indicators.Renko.PERIOD_CLOSE
+    ohlc = renko.get_ohlc_data()
+
+    reversed_rename_map = {v: k for k, v in rename_map.items()}
+    ohlc.columns = rename(ohlc.columns, reversed_rename_map)
+
+    return ohlc
