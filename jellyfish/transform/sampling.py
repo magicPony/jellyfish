@@ -2,9 +2,10 @@
 List of possible sampling technics
 """
 import pandas as pd
-from tqdm import trange
 from stocktrends import indicators
+from tqdm import trange
 
+import jellyfish.transform.sampling_triggers as triggers
 from jellyfish import utils
 from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE,
                                  NUM_OF_TRADES, QUOTE_ASSET_VOLUME)
@@ -23,16 +24,19 @@ DEFAULT_SAMPLING_AGG = {
 }
 
 
-def _generic_sampling(ohlc: pd.DataFrame, agg: dict, condition_cb):
+def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
     """
     Generic sampling backbone
     Args:
         ohlc: dataframe with candles
-        agg: candle downsampling aggregation info
         condition_cb: sampling condition callback
+        agg: candle downsampling aggregation info
 
     Returns: downsampled data
     """
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
     data = []
     i = 0
     progress = trange(len(ohlc))
@@ -63,18 +67,8 @@ def line_break_bars(ohlc: pd.DataFrame,
 
     Returns: downsampled data
     """
-    if agg is None:
-        agg = DEFAULT_SAMPLING_AGG
-
-    def condition(ohlc_sample: pd.DataFrame):
-        sample_size = len(ohlc_sample)
-        if sample_size <= lookback:
-            return False
-
-        prices = list(ohlc_sample[close_col])[-lookback:]
-        return max(prices) <= prices[-1] or min(prices) >= prices[-1]
-
-    return _generic_sampling(ohlc, agg, condition)
+    condition = triggers.line_break(close_col, lookback)
+    return _generic_sampling(ohlc, condition, agg)
 
 
 def tick_bars(ohlc: pd.DataFrame,
@@ -92,13 +86,8 @@ def tick_bars(ohlc: pd.DataFrame,
 
     Returns: downsampled data
     """
-    if agg is None:
-        agg = DEFAULT_SAMPLING_AGG
-
-    def condition(ohlc_sample: pd.DataFrame):
-        return ohlc_sample[trades_col].sum() >= trades_per_candle
-
-    return _generic_sampling(ohlc, agg, condition)
+    condition = triggers.apply_column_greater(trades_col, 'sum', trades_per_candle)
+    return _generic_sampling(ohlc, condition, agg)
 
 
 def volume_bars(ohlc: pd.DataFrame,
@@ -116,13 +105,8 @@ def volume_bars(ohlc: pd.DataFrame,
 
     Returns: downsampled data
     """
-    if agg is None:
-        agg = DEFAULT_SAMPLING_AGG
-
-    def condition(ohlc_sample: pd.DataFrame):
-        return ohlc_sample[volume_col].sum() >= volume_per_candle
-
-    return _generic_sampling(ohlc, agg, condition)
+    condition = triggers.apply_column_greater(volume_col, 'sum', volume_per_candle)
+    return _generic_sampling(ohlc, condition, agg)
 
 
 def dollar_bars(ohlc: pd.DataFrame,
@@ -140,13 +124,8 @@ def dollar_bars(ohlc: pd.DataFrame,
 
     Returns: downsampled data
     """
-    if agg is None:
-        agg = DEFAULT_SAMPLING_AGG
-
-    def condition(ohlc_sample: pd.DataFrame):
-        return ohlc_sample[dollars_col].sum() >= dollars_per_candle
-
-    return _generic_sampling(ohlc, agg, condition)
+    condition = triggers.apply_column_greater(dollars_col, 'sum', dollars_per_candle)
+    return _generic_sampling(ohlc, condition, agg)
 
 
 def renko_bars(ohlc: pd.DataFrame,
