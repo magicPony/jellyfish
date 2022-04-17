@@ -1,21 +1,16 @@
-import logging
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from jellyfish import transform
-from jellyfish import utils
+from jellyfish import transform, utils
 from jellyfish.candles_loader import load_candles_history
 
 
 class TestTransform(TestCase):
     @staticmethod
     def load_sample_data():
-        client = utils.load_binance_client()
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(hours=400)
-        pair = 'XRPUSDT'
-        interval = '1h'
-        return load_candles_history(client, pair, start_dt, end_dt, interval)
+        return load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
     def test_heiken_ashi(self):
         frame = TestTransform.load_sample_data()
@@ -31,12 +26,9 @@ class TestTransform(TestCase):
 class TestSampling(TestCase):
     @staticmethod
     def load_sample_data():
-        client = utils.load_binance_client()
-        pair = 'BTCUSDT'
         end_dt = datetime.now()
         start_dt = end_dt - timedelta(days=365)
-        interval = '15m'
-        return load_candles_history(client, pair, start_dt, end_dt, interval)
+        return load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '15m')
 
     def test_tick_bars(self):
         frame = TestSampling.load_sample_data()
@@ -66,4 +58,9 @@ class TestSampling(TestCase):
     def test_tick_imbalance(self):
         frame = TestSampling.load_sample_data()[-1000:]
         frame = transform.sampling.tick_imbalance(frame.reset_index(), 7)
+        utils.plot_ohlc(frame)
+
+    def test_zigzag(self):
+        frame = TestSampling.load_sample_data()
+        frame = transform.sampling.zigzag(frame.reset_index(), 3e-1)
         utils.plot_ohlc(frame)

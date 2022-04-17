@@ -1,7 +1,8 @@
+cython
 numpy>=1.22.3
 pandas==1.4.2
 tqdm>=4.64.0
-setuptools==62.0.0
+setuptools
 backtesting~=0.3.3
 pytest
 pytest-cov
@@ -11,3 +12,5 @@ python-dateutil~=2.8.2
 click~=8.1.2
 stocktrends
 jellyfish~=0.1
+matplotlib
+zigzag
