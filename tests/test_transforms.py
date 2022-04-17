@@ -64,3 +64,17 @@ class TestSampling(TestCase):
         frame = TestSampling.load_sample_data()
         frame = transform.sampling.zigzag(frame.reset_index(), 3e-1)
         utils.plot_ohlc(frame)
+
+    def test_compose(self):
+        t = transform.compose([
+            (transform.sampling.line_break_bars, 40),
+            (transform.sampling.volume_bars, 2e3),
+            (transform.sampling.tick_imbalance, 7),
+            transform.to_heiken_ashi,
+            transform.to_log_prices
+        ])
+
+        frame = TestSampling.load_sample_data()
+        frame = t(frame.reset_index())
+
+        utils.plot_ohlc(frame)
