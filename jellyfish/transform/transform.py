@@ -23,6 +23,8 @@ def to_log_prices(ohlc: pd.DataFrame,
     for col in [open_col, high_col, low_col, close_col]:
         ohlc[col] = ohlc[col].apply(np.log)
 
+    return ohlc
+
 
 def to_heiken_ashi(ohlc: pd.DataFrame,
                    open_col=OPEN, high_col=HIGH,
@@ -42,3 +44,26 @@ def to_heiken_ashi(ohlc: pd.DataFrame,
     ohlc[high_col] = ha_ohlc[1]
     ohlc[low_col] = ha_ohlc[2]
     ohlc[close_col] = ha_ohlc[3]
+    return ohlc
+
+
+def compose(transforms):
+    """
+    Create a callback with composed transforms apply
+    Args:
+        transforms: transforms list
+
+    Returns: application callback
+    """
+    def ret(ohlc: pd.DataFrame):
+        for t in transforms:
+            if isinstance(t, tuple):
+                func = t[0]
+                args = t[1:]
+                ohlc = func(ohlc, *args)
+            else:
+                ohlc = t(ohlc)
+
+        return ohlc
+
+    return ret
