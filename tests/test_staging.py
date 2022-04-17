@@ -11,12 +11,9 @@ from jellyfish.utils import load_binance_client, plot_ohlc_from_backtest
 
 class Test(TestCase):
     def test_heiken_ashi_strategy(self):
-        client = load_binance_client()
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=365 * 2)
-        pair = 'XRPUSDT'
-        interval = '1d'
-        frame = load_candles_history(client, pair, start_dt, end_dt, interval)
+        frame = load_candles_history(load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1d')
 
         # fucking "summer time" +-one hour causing problems with timestamps
         frame = frame.reset_index()

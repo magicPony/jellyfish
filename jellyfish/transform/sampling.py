@@ -2,8 +2,9 @@
 List of possible sampling technics
 """
 import pandas as pd
-from stocktrends import indicators
+import stocktrends
 from tqdm import trange
+from zigzag import peak_valley_pivots
 
 import jellyfish.transform.sampling_triggers as triggers
 from jellyfish import utils
@@ -88,6 +89,22 @@ def line_break_bars(ohlc: pd.DataFrame,
     """
     condition = triggers.line_break(close_col, lookback)
     return _generic_sampling(ohlc, condition, agg)
+
+
+def zigzag(ohlc: pd.DataFrame,
+           threshold,
+           prices_col=CLOSE,
+           agg: dict = None):
+    if agg is None:
+        agg = DEFAULT_SAMPLING_AGG
+
+    pivots = peak_valley_pivots(ohlc[prices_col].to_numpy(), threshold, -threshold)
+    pivot_idx = [i for i, state in enumerate(pivots) if state != 0]
+    data = []
+    for start, fin in zip(pivot_idx[:-1], pivot_idx[1:]):
+        data.append(utils.collapse_candle(ohlc[start:fin], agg))
+
+    return pd.DataFrame(data, columns=agg.keys())
 
 
 def tick_bars(ohlc: pd.DataFrame,
@@ -189,9 +206,9 @@ def renko_bars(ohlc: pd.DataFrame,
 
     ohlc.columns = rename(ohlc.columns, rename_map)
 
-    renko = indicators.Renko(ohlc)
+    renko = stocktrends.indicators.Renko(ohlc)
     renko.brick_size = brick_size
-    renko.chart_type = indicators.Renko.PERIOD_CLOSE
+    renko.chart_type = stocktrends.indicators.Renko.PERIOD_CLOSE
     ohlc = renko.get_ohlc_data()
 
     reversed_rename_map = {v: k for k, v in rename_map.items()}
