@@ -1,4 +1,3 @@
-# pylint: disable=E0611
 """
 List of indicators for candlestick charts
 """
