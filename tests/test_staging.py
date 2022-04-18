@@ -17,7 +17,7 @@ class SmaCrossWithIndicators(SmaCross):
         super(SmaCrossWithIndicators, self).init()
 
     def next(self):
-        if self.hurst > 0.525:
+        if self.hurst > 0.6:
             super(SmaCrossWithIndicators, self).next()
 
 
@@ -39,7 +39,7 @@ class Test(TestCase):
 
         SmaCrossWithIndicators.n1 = 10
         SmaCrossWithIndicators.n2 = 30
-        bt = Backtest(frame, SmaCrossWithIndicators, cash=10_000, commission=.002)
+        bt = Backtest(frame, SmaCrossWithIndicators, cash=1000_000, commission=.002)
         stats = bt.run()
         utils.plot_ohlc_from_backtest(bt)
 
