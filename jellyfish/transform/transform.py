@@ -56,13 +56,11 @@ def compose(transforms):
     Returns: application callback
     """
     def ret(ohlc: pd.DataFrame):
-        for t in transforms:
-            if isinstance(t, tuple):
-                func = t[0]
-                args = t[1:]
-                ohlc = func(ohlc, *args)
+        for transform_item in transforms:
+            if isinstance(transform_item, tuple):
+                ohlc = transform_item[0](ohlc, *transform_item[1:])
             else:
-                ohlc = t(ohlc)
+                ohlc = transform_item(ohlc)
 
         return ohlc
 
