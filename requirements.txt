@@ -14,3 +14,4 @@ stocktrends
 jellyfish~=0.1
 matplotlib
 zigzag
+hurst

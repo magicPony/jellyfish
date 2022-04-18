@@ -3,10 +3,28 @@ List of indicators for candlestick charts
 """
 import numpy as np
 from zigzag import peak_valley_pivots
+from hurst import compute_Hc
 
 
-def zigzag(prices: np.ndarray,
-           threshold):
+def hurst(signal: np.ndarray, window_size, kind='random_walk'):
+    """
+    Compute hurst exponent signal for momentum validation
+    Args:
+        signal: signal sequence
+        window_size: rolling window size
+        kind: kind of signal
+
+    Returns: hust exponent
+    """
+    res = np.zeros_like(signal)
+    for i in range(window_size, len(signal)):
+        res[i-1], _, _ = compute_Hc(signal[i-window_size:i], simplified=True, kind=kind)
+
+    res[0:window_size-2] = res[window_size-1]
+    return res
+
+
+def zigzag(prices: np.ndarray, threshold):
     """
     ZigZag indicator
 
