@@ -4,25 +4,43 @@ from unittest import TestCase
 from backtesting import Backtest
 
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.transform import to_heiken_ashi
 from jellyfish.stretegy import SmaCross
-from jellyfish.utils import load_binance_client, plot_ohlc_from_backtest
+from jellyfish import utils, transform, indicator
+
+
+class SmaCrossWithIndicators(SmaCross):
+    def init(self):
+        self.hurst = self.I(indicator.hurst, self.data.Close, kind='price', name='Hurst (price)', overlay=False)
+        self.I(indicator.hurst, self.data.Close, kind='random_walk', name='Hurst (random walk)', overlay=False)
+        self.I(indicator.hurst, self.data.Close, kind='change', name='Hurst (change)', overlay=False)
+
+        super(SmaCrossWithIndicators, self).init()
+
+    def next(self):
+        if self.hurst > 0.6:
+            super(SmaCrossWithIndicators, self).next()
 
 
 class Test(TestCase):
     def test_heiken_ashi_strategy(self):
-        end_dt = datetime(year=2022, month=2, day=3)
-        start_dt = end_dt - timedelta(days=365 * 2)
-        frame = load_candles_history(load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1d')
+        end_dt = datetime(year=2022, month=4, day=3)
+        start_dt = end_dt - timedelta(days=30 * 16)
+        frame = load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
         # fucking "summer time" +-one hour causing problems with timestamps
         frame = frame.reset_index()
         frame.Date = frame.Date.dt.date
         frame.set_index('Date', inplace=True)
-        to_heiken_ashi(frame)
 
-        bt = Backtest(frame, SmaCross, cash=10_000, commission=.002)
+        t = transform.compose([
+            (transform.sampling.tick_imbalance, 10),
+        ])
+        frame = t(frame.reset_index())
+
+        SmaCrossWithIndicators.n1 = 10
+        SmaCrossWithIndicators.n2 = 30
+        bt = Backtest(frame, SmaCrossWithIndicators, cash=1000_000, commission=.002)
         stats = bt.run()
-        plot_ohlc_from_backtest(bt, open_browser=False)
+        utils.plot_ohlc_from_backtest(bt)
 
         self.assertGreater(stats['# Trades'], 0)
