@@ -71,7 +71,12 @@ class TestSampling(TestCase):
             (transform.sampling.volume_bars, 2e3),
             (transform.sampling.tick_imbalance, 7),
             transform.to_heiken_ashi,
-            transform.to_log_prices
+            transform.to_log_prices,
+            transform.to_heiken_ashi,
+            (transform.sampling.tick_imbalance, 2),
+            (transform.sampling.volume_bars, 5e5),
+            (transform.sampling.line_break_bars, 2),
+            (transform.sampling.renko_bars, 5e-2)
         ])
 
         frame = TestSampling.load_sample_data()
