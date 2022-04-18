@@ -205,6 +205,8 @@ def renko_bars(ohlc: pd.DataFrame,
 
         return res
 
+    volume_df = ohlc[[date_col, volume_col]].copy()
+
     rename_map = {
         open_col: OPEN.lower(),
         high_col: HIGH.lower(),
@@ -223,5 +225,13 @@ def renko_bars(ohlc: pd.DataFrame,
 
     reversed_rename_map = {v: k for k, v in rename_map.items()}
     ohlc.columns = rename(ohlc.columns, reversed_rename_map)
+    volumes = [volume_df[volume_df[date_col] <= ohlc[date_col][0]][volume_col]]
+    for i in range(1, len(ohlc)):
+        from_date = ohlc[date_col][i-1]
+        to_date = ohlc[date_col][i]
+        volumes.append(volume_df[
+                           (from_date < volume_df[date_col]) & (volume_df[date_col] <= to_date)
+                           ][volume_col].sum())
 
+    ohlc[volume_col] = volumes
     return ohlc

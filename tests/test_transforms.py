@@ -28,7 +28,7 @@ class TestSampling(TestCase):
     def load_sample_data():
         end_dt = datetime.now()
         start_dt = end_dt - timedelta(days=365)
-        return load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '15m')
+        return load_candles_history(utils.load_binance_client(), 'BTCUSDT', start_dt, end_dt, '15m')
 
     def test_tick_bars(self):
         frame = TestSampling.load_sample_data()
@@ -47,7 +47,7 @@ class TestSampling(TestCase):
 
     def test_renko(self):
         frame = TestSampling.load_sample_data()[-1000:]
-        frame = transform.sampling.renko_bars(frame.reset_index())
+        frame = transform.sampling.renko_bars(frame.reset_index(), 100)
         utils.plot_ohlc(frame)
 
     def test_dollars(self):
@@ -71,7 +71,12 @@ class TestSampling(TestCase):
             (transform.sampling.volume_bars, 2e3),
             (transform.sampling.tick_imbalance, 7),
             transform.to_heiken_ashi,
-            transform.to_log_prices
+            transform.to_log_prices,
+            transform.to_heiken_ashi,
+            (transform.sampling.tick_imbalance, 2),
+            (transform.sampling.volume_bars, 5e5),
+            (transform.sampling.line_break_bars, 2),
+            (transform.sampling.renko_bars, 5e-2)
         ])
 
         frame = TestSampling.load_sample_data()
