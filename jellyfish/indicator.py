@@ -20,7 +20,7 @@ def hurst(signal: np.ndarray, window_size, kind='random_walk'):
     for i in range(window_size, len(signal)):
         res[i-1], _, _ = compute_Hc(signal[i-window_size:i], simplified=True, kind=kind)
 
-    res[0:window_size-2] = res[window_size-1]
+    res[0:window_size-2] = 0.5
     return res
 
 
