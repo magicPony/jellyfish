@@ -5,19 +5,19 @@ from click.testing import CliRunner
 from jellyfish import cli
 
 
-class TestSyscall(TestCase):
-    def test_clean_cache(self):
-        ret = os.system('rm-candles')
-        self.assertEqual(ret, 0)
-
-    def test_download_candles(self):
-        pair = 'BTCUSDT'
-        from_str = '2019-09-09'
-        interval = '4h'
-        cmd = f'load-candles {pair} --from {from_str} -i {interval}'
-
-        ret = os.system(cmd)
-        self.assertEqual(ret, 0)
+# class TestSyscall(TestCase):
+#     def test_clean_cache(self):
+#         ret = os.system('rm-candles')
+#         self.assertEqual(ret, 0)
+#
+#     def test_download_candles(self):
+#         pair = 'BTCUSDT'
+#         from_str = '2019-09-09'
+#         interval = '4h'
+#         cmd = f'load-candles {pair} --from {from_str} -i {interval}'
+#
+#         ret = os.system(cmd)
+#         self.assertEqual(ret, 0)
 
 
 class TestDirectCall(TestCase):
