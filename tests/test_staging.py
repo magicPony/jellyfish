@@ -5,6 +5,7 @@ from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Backtest
 from jellyfish.alpha import SmaCross
 from jellyfish import utils, transform, indicator
+from jellyfish.transform import filters
 
 
 class SmaCrossWithIndicators(SmaCross):
@@ -31,7 +32,7 @@ class Test(TestCase):
         frame.Date = frame.Date.dt.date
         frame.set_index('Date', inplace=True)
 
-        t = transform.compose([
+        t = filters.compose([
             (transform.sampling.tick_imbalance, 10),
         ])
         frame = t(frame.reset_index())
