@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from backtesting import Backtest
-
 from jellyfish import utils, indicator
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.stretegy import DummyStrategy
+from jellyfish.core import Backtest, Strategy
 
 
-class DummyStrategyWithIndicators(DummyStrategy):
+class DummyStrategyWithIndicators(Strategy):
     def init(self):
         self.mark_as_indicator('zigzag')
         self.mark_as_indicator('hurst_random_walk')
@@ -29,5 +27,5 @@ class Test(TestCase):
 
         backtest = Backtest(frame.reset_index(), DummyStrategyWithIndicators)
         backtest.run()
-        utils.plot_ohlc_from_backtest(backtest)
+        backtest.plot()
 

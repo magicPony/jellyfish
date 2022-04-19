@@ -1,18 +1,17 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from backtesting import Backtest
-
-from jellyfish.candles_loader import load_candles_history
-from jellyfish.stretegy import SmaCross
 from jellyfish import utils, transform, indicator
+from jellyfish.alpha import SmaCross
+from jellyfish.candles_loader import load_candles_history
+from jellyfish.core import Backtest
 
 
 class SmaCrossWithIndicators(SmaCross):
     def init(self):
-        self.hurst = self.I(indicator.hurst, self.data.Close, kind='price', name='Hurst (price)', overlay=False)
-        self.I(indicator.hurst, self.data.Close, kind='random_walk', name='Hurst (random walk)', overlay=False)
-        self.I(indicator.hurst, self.data.Close, kind='change', name='Hurst (change)', overlay=False)
+        self.hurst = self.I(indicator.hurst, self.data.Close, kind='price', name='Hurst (price)')
+        self.I(indicator.hurst, self.data.Close, kind='random_walk', name='Hurst (random walk)')
+        self.I(indicator.hurst, self.data.Close, kind='change', name='Hurst (change)')
 
         super(SmaCrossWithIndicators, self).init()
 
@@ -41,6 +40,6 @@ class Test(TestCase):
         SmaCrossWithIndicators.n2 = 30
         bt = Backtest(frame, SmaCrossWithIndicators, cash=1000_000, commission=.002)
         stats = bt.run()
-        utils.plot_ohlc_from_backtest(bt)
+        bt.plot()
 
         self.assertGreater(stats['# Trades'], 0)
