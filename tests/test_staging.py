@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
+import pandas as pd
+
 from jellyfish import utils, transform, indicator
-from jellyfish.alpha import SmaCross
+from jellyfish.alpha import SmaCross, BuyAndHold
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Backtest
 
@@ -30,6 +32,13 @@ class Test(TestCase):
         start_dt = end_dt - timedelta(days=30 * 16 * 2)
         frame = load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
+        bt = Backtest(frame, BuyAndHold)
+        columns = ['Sharpe Ratio', 'Calmar Ratio', 'Sortino Ratio']
+        buy_n_hold_stats = bt.run()
+        stats = [buy_n_hold_stats[columns].tolist()]
+
+        self.assertGreater(buy_n_hold_stats['# Trades'], 0)
+
         t = transform.compose([
             (transform.sampling.tick_imbalance, 10),
         ])
@@ -38,8 +47,11 @@ class Test(TestCase):
         SmaCrossWithIndicators.n1 = 10
         SmaCrossWithIndicators.n2 = 30
         bt = Backtest(frame, SmaCrossWithIndicators)
-        stats = bt.run()
+        sma_cross_stats = bt.run()
+        stats.append(sma_cross_stats[columns].tolist())
         bt.plot()
 
-        self.assertGreater(stats['# Trades'], 0)
+        self.assertGreater(sma_cross_stats['# Trades'], 0)
+
+        stats = pd.DataFrame(stats, columns=columns, index=['BuyAndHold', 'SmcCrossover'])
         print(stats)

@@ -2,9 +2,9 @@
 List of indicators for candlestick charts
 """
 import numpy as np
-from zigzag import peak_valley_pivots
-from hurst import compute_Hc
 import tulipy as ti
+from hurst import compute_Hc
+from zigzag import peak_valley_pivots
 
 
 def rsi(signal: np.ndarray, period):
