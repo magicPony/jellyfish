@@ -6,11 +6,11 @@ import logging
 import warnings
 
 import pandas as pd
-from backtesting import Backtest
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
 from jellyfish import PRIVATE_DATA_PATH, CACHE_PATH
-from jellyfish.stretegy import DummyStrategy
+from jellyfish.backtesting.stretegy import Strategy
+from jellyfish.backtesting import Backtest
 
 
 def _load_binance_credentials():
@@ -37,7 +37,7 @@ def plot_ohlc(ohlc: pd.DataFrame, show_legend=False):
         show_legend: show equity/pnl legend
         ohlc: dataframe
     """
-    backtest = Backtest(ohlc, strategy=DummyStrategy, cash=10_000, commission=.002)
+    backtest = Backtest(ohlc, strategy=Strategy, cash=10_000, commission=.002)
     backtest.run()
     plot_ohlc_from_backtest(backtest, show_legend=show_legend)
 

@@ -4,12 +4,12 @@
 Strategies list
 """
 
-from backtesting import Strategy
+import backtesting
 from backtesting.test import SMA
 from backtesting.lib import crossover
 
 
-class DummyStrategy(Strategy):
+class Strategy(backtesting.Strategy):
     """
     Dummy empty strategy
     """

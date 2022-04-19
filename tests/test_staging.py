@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from backtesting import Backtest
-
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.stretegy import SmaCross
+from jellyfish.backtesting import SmaCross, Backtest
 from jellyfish import utils, transform, indicator
 
 
