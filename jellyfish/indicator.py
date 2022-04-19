@@ -4,6 +4,22 @@ List of indicators for candlestick charts
 import numpy as np
 from zigzag import peak_valley_pivots
 from hurst import compute_Hc
+import tulipy as ti
+
+
+def rsi(signal: np.ndarray, period):
+    """
+    Relative strength indicator
+    Args:
+        signal: signal data
+        period: period of capturing stats
+
+    Returns: RSI value
+    """
+    signal = np.array(signal)
+    res = np.ones_like(signal) * 0.5
+    res[period:] = ti.rsi(signal, period)
+    return res
 
 
 def hurst(signal: np.ndarray, window_size=100, kind='random_walk'):
@@ -16,11 +32,10 @@ def hurst(signal: np.ndarray, window_size=100, kind='random_walk'):
 
     Returns: hust exponent
     """
-    res = np.zeros_like(signal)
+    res = np.ones_like(signal) * 0.5
     for i in range(window_size, len(signal)+1):
         res[i-1], _, _ = compute_Hc(signal[i-window_size:i], simplified=True, kind=kind)
 
-    res[0:window_size-1] = 0.5
     return res
 
 

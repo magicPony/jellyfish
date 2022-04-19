@@ -4,6 +4,7 @@ pandas==1.4.2
 tqdm>=4.64.0
 setuptools
 backtesting~=0.3.3
+tulipy
 pytest
 pytest-cov
 pylint

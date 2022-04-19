@@ -4,12 +4,33 @@ Utility functions
 import json
 import logging
 import warnings
+from datetime import timedelta
 
 import pandas as pd
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
-from jellyfish import PRIVATE_DATA_PATH
+from jellyfish import PRIVATE_DATA_PATH, DATE
 from jellyfish.core import Strategy, Backtest
+
+
+def get_ticks_per_year(ohlc: pd.DataFrame):
+    """
+    Calculate average ticks per year
+    Args:
+        ohlc: dataframe
+
+    Returns: ticks per year
+    """
+    if DATE in ohlc.columns:
+        dates = ohlc[DATE]
+    elif isinstance(ohlc.index, pd.DatetimeIndex):
+        dates = ohlc.index
+    else:
+        return None
+
+    dates = dates.tolist()
+    years = (dates[-1] - dates[0]) / timedelta(days=365)
+    return len(ohlc) / years
 
 
 def _load_binance_credentials():
