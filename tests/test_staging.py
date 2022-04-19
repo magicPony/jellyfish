@@ -40,6 +40,6 @@ class Test(TestCase):
         SmaCrossWithIndicators.n2 = 30
         bt = Backtest(frame, SmaCrossWithIndicators, cash=1000_000, commission=.002)
         stats = bt.run()
-        utils.plot_ohlc_from_backtest(bt)
+        bt.plot()
 
         self.assertGreater(stats['# Trades'], 0)

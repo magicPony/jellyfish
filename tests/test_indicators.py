@@ -27,5 +27,5 @@ class Test(TestCase):
 
         backtest = Backtest(frame.reset_index(), DummyStrategyWithIndicators)
         backtest.run()
-        utils.plot_ohlc_from_backtest(backtest)
+        backtest.plot()
 

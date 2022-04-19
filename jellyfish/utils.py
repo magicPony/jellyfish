@@ -8,9 +8,8 @@ import warnings
 import pandas as pd
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
-from jellyfish import PRIVATE_DATA_PATH, CACHE_PATH
-from jellyfish.core.stretegy import Strategy
-from jellyfish.core import Backtest
+from jellyfish import PRIVATE_DATA_PATH
+from jellyfish.core import Backtest, Strategy
 
 
 def _load_binance_credentials():
@@ -30,30 +29,17 @@ def _load_binance_credentials():
         }
 
 
-def plot_ohlc(ohlc: pd.DataFrame, show_legend=False):
+def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True):
     """
     Plot OHLC chart from dataframe
     Args:
-        show_legend: show equity/pnl legend
         ohlc: dataframe
+        open_browser: open html report in browser
+        show_legend: show equity/pnl legend
     """
     backtest = Backtest(ohlc, strategy=Strategy, cash=10_000, commission=.002)
     backtest.run()
-    plot_ohlc_from_backtest(backtest, show_legend=show_legend)
-
-
-def plot_ohlc_from_backtest(backtest: Backtest, filepath=None, open_browser=True, show_legend=True):
-    """
-    Plots candlestick chart from dataframe
-    @param backtest: backtesting engine
-    @param filepath: file path
-    @param open_browser: open browser
-    @param show_legend: show equity/pnl legend
-    """
-    if filepath is None:
-        filepath = (CACHE_PATH / 'test.html').as_posix()
-
-    backtest.plot(filename=filepath, show_legend=show_legend, open_browser=open_browser)
+    backtest.plot(open_browser=open_browser, show_legend=show_legend)
 
 
 def load_binance_client():
