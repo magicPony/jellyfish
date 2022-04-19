@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.backtesting import Backtest
+from jellyfish.core import Backtest
 from jellyfish.alpha import SmaCross
 from jellyfish import utils, transform, indicator
 

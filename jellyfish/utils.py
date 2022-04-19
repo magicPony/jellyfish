@@ -9,8 +9,8 @@ import pandas as pd
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
 from jellyfish import PRIVATE_DATA_PATH, CACHE_PATH
-from jellyfish.backtesting.stretegy import Strategy
-from jellyfish.backtesting import Backtest
+from jellyfish.core.stretegy import Strategy
+from jellyfish.core import Backtest
 
 
 def _load_binance_credentials():

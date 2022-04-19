@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from jellyfish import utils, indicator
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.backtesting import Strategy, Backtest
+from jellyfish.core import Strategy, Backtest
 
 
 class DummyStrategyWithIndicators(Strategy):

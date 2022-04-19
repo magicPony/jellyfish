@@ -4,7 +4,7 @@ Simple moving average crossover strategy
 from backtesting.test import SMA
 from backtesting.lib import crossover
 
-from jellyfish.backtesting import Strategy
+from jellyfish.core import Strategy
 
 
 class SmaCross(Strategy):
