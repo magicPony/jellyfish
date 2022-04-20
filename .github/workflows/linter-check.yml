@@ -1,4 +1,4 @@
-name: Tests and coverage
+name: Linter check
 on: [push]
 jobs:
   tests-and-coverage:
@@ -14,9 +14,5 @@ jobs:
       - name: Install package
         run: pip install .
 
-      - name: Generate coverage report
-        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x
-      - uses: codecov/codecov-action@v2
-        with:
-          files: /home/runner/coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Run linter
+        run: pylint jellyfish
