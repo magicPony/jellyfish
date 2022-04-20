@@ -18,7 +18,7 @@ jobs:
         run: pylint jellyfish
 
       - name: Generate coverage report
-        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto
+        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x
       - uses: codecov/codecov-action@v2
         with:
           files: /home/runner/coverage.xml
