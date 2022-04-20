@@ -24,44 +24,44 @@ class TestTransform(TestCase):
 
 
 class TestSampling(TestCase):
-    @staticmethod
-    def load_sample_data():
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
         end_dt = datetime.now()
-        start_dt = end_dt - timedelta(days=365)
-        return load_candles_history(utils.load_binance_client(), 'BTCUSDT', start_dt, end_dt, '15m')
+        start_dt = end_dt - timedelta(days=30 * 6)
+        self.frame = load_candles_history(utils.load_binance_client(), 'BTCUSDT', start_dt, end_dt, '15m')
 
     def test_tick_bars(self):
-        frame = TestSampling.load_sample_data()
+        frame = self.frame
         frame = transform.sampling.tick_bars(frame.reset_index(), 2e6)
         utils.plot_ohlc(frame.reset_index())
 
     def test_line_break_bars(self):
-        frame = TestSampling.load_sample_data().iloc[-10000:]
+        frame = self.frame.iloc[-10000:]
         frame = transform.sampling.line_break_bars(frame.reset_index(), 40)
         utils.plot_ohlc(frame.reset_index())
 
     def test_volume_bars(self):
-        frame = TestSampling.load_sample_data()[-1000:]
+        frame = self.frame[-1000:]
         frame = transform.sampling.volume_bars(frame.reset_index(), 2e3)
         utils.plot_ohlc(frame.reset_index())
 
     def test_renko(self):
-        frame = TestSampling.load_sample_data()[-1000:]
+        frame = self.frame[-1000:]
         frame = transform.sampling.renko_bars(frame.reset_index(), 100)
         utils.plot_ohlc(frame)
 
     def test_dollars(self):
-        frame = TestSampling.load_sample_data()[-1000:]
+        frame = self.frame[-1000:]
         frame = transform.sampling.dollar_bars(frame.reset_index(), 1e8)
         utils.plot_ohlc(frame)
 
     def test_tick_imbalance(self):
-        frame = TestSampling.load_sample_data()[-1000:]
+        frame = self.frame[-1000:]
         frame = transform.sampling.tick_imbalance(frame.reset_index(), 7)
         utils.plot_ohlc(frame)
 
     def test_zigzag(self):
-        frame = TestSampling.load_sample_data()
+        frame = self.frame
         frame = transform.sampling.zigzag(frame.reset_index(), 3e-1)
         utils.plot_ohlc(frame)
 
@@ -79,7 +79,7 @@ class TestSampling(TestCase):
             (transform.sampling.renko_bars, 5e-2)
         ])
 
-        frame = TestSampling.load_sample_data()
+        frame = self.frame
         frame = t(frame.reset_index())
 
         utils.plot_ohlc(frame)
