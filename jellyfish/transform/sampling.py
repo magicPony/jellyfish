@@ -16,7 +16,8 @@ DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
     HIGH: 'max',
     LOW: 'min',
     CLOSE: utils.last,
-    VOLUME: 'sum'
+    VOLUME: 'sum',
+    NUM_OF_TRADES: 'sum'
 }
 
 DEFAULT_SAMPLING_AGG = {
