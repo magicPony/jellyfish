@@ -5,6 +5,7 @@ tqdm>=4.64.0
 setuptools
 backtesting~=0.3.3
 tulipy
+pytest-parallel
 pytest
 pytest-cov
 pylint

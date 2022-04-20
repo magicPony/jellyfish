@@ -17,7 +17,7 @@ def rsi(signal: np.ndarray, period):
     Returns: RSI value
     """
     signal = np.array(signal)
-    res = np.ones_like(signal) * 0.5
+    res = np.ones_like(signal) * 50
     res[period:] = ti.rsi(signal, period)
     return res
 
