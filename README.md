@@ -1,0 +1,2 @@
+[![Linter check](https://github.com/magicPony/jellyfish/actions/workflows/linter-check.yml/badge.svg?branch=master)](https://github.com/magicPony/jellyfish/actions/workflows/linter-check.yml)
+[![Tests and coverage](https://github.com/magicPony/jellyfish/actions/workflows/tests-and-coverage.yml/badge.svg)](https://github.com/magicPony/jellyfish/actions/workflows/tests-and-coverage.yml)
