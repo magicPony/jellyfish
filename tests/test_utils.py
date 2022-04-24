@@ -6,16 +6,18 @@ import pandas as pd
 
 from jellyfish import utils
 from jellyfish.candles_loader import load_candles_history
+from jellyfish.core import Client
 
 
 class Test(TestCase):
     def test_client(self):
-        utils.load_binance_client()
+        Client()
+        Client(demo_user=True)
 
     def test_ticks_per_year(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 16 * 2)
-        frame = load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1d')
+        frame = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1d')
 
         self.assertIsNotNone(utils.get_ticks_per_year(frame))
         self.assertIsNotNone(utils.get_ticks_per_year(frame.reset_index()))

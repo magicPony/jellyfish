@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from jellyfish import transform, utils
 from jellyfish.candles_loader import load_candles_history
+from jellyfish.core import Client
 
 
 class TestTransform(TestCase):
@@ -10,7 +11,7 @@ class TestTransform(TestCase):
     def load_sample_data():
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(hours=400)
-        return load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1h')
+        return load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
     def test_heiken_ashi(self):
         frame = TestTransform.load_sample_data()
@@ -28,7 +29,7 @@ class TestSampling(TestCase):
         TestCase.__init__(self, *args, **kwargs)
         end_dt = datetime.now()
         start_dt = end_dt - timedelta(days=30 * 6)
-        self.frame = load_candles_history(utils.load_binance_client(), 'BTCUSDT', start_dt, end_dt, '15m')
+        self.frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '15m')
 
     def test_tick_bars(self):
         frame = self.frame

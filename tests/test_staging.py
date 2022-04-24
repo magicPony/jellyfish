@@ -6,7 +6,7 @@ import pandas as pd
 from jellyfish import utils, transform, indicator
 from jellyfish.alpha import SmaCross, BuyAndHold
 from jellyfish.candles_loader import load_candles_history
-from jellyfish.core import Backtest
+from jellyfish.core import Backtest, Client
 
 
 class SmaCrossWithIndicators(SmaCross):
@@ -30,7 +30,7 @@ class Test(TestCase):
     def test_heiken_ashi_strategy(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 16 * 2)
-        frame = load_candles_history(utils.load_binance_client(), 'XRPUSDT', start_dt, end_dt, '1h')
+        frame = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
         bt = Backtest(frame, BuyAndHold)
         columns = ['Sharpe Ratio', 'Calmar Ratio', 'Sortino Ratio']

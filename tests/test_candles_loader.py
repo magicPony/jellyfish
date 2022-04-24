@@ -5,12 +5,12 @@ from pandas.testing import assert_frame_equal
 
 from jellyfish import CANDLES_HISTORY_PATH
 from jellyfish.candles_loader import load_candles_history, clean_candles_cache
-from jellyfish.utils import load_binance_client
+from jellyfish.core import Client
 
 
 class Test(TestCase):
     def load_for_interval(self, interval):
-        client = load_binance_client()
+        client = Client()
         pair = 'XRPUSDT'
         start_dt = parser.parse('2021-01-09 12:22')
         end_dt = parser.parse('2021-09-09 10:00')
@@ -32,5 +32,5 @@ class Test(TestCase):
         self.load_for_interval('1h')
 
     def test_load_binance_client(self):
-        client = load_binance_client()
+        client = Client()
         client.ping()

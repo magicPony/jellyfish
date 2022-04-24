@@ -7,7 +7,6 @@ import warnings
 from datetime import timedelta
 
 import pandas as pd
-from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 
 from jellyfish import PRIVATE_DATA_PATH, DATE
 from jellyfish.core import Strategy, Backtest
@@ -33,7 +32,7 @@ def get_ticks_per_year(ohlc: pd.DataFrame):
     return len(ohlc) / years
 
 
-def _load_binance_credentials():  # pragma: no cover
+def load_binance_credentials():  # pragma: no cover
     """
     Loads json with Binance API credentials
     :return: json with creds
@@ -61,15 +60,6 @@ def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True):
     backtest = Backtest(ohlc, strategy=Strategy, cash=10_000, commission=.002)
     backtest.run()
     backtest.plot(open_browser=open_browser, show_legend=show_legend)
-
-
-def load_binance_client():
-    """
-    Loads Binance reset manager client
-    :return: RestManager client
-    """
-    creds = _load_binance_credentials()
-    return RestManager(creds['key'], creds['secret'])
 
 
 def disable_warnings():
