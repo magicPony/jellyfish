@@ -9,7 +9,12 @@ class Strategy(backtesting.Strategy):
     Dummy empty strategy
     """
     def init(self):
-        pass
+        for col in self.data.df.columns:
+            try:
+                if col.startswith('i_'):
+                    self.mark_as_indicator(col)
+            except AttributeError:
+                pass
 
     def next(self):
         pass
@@ -24,4 +29,6 @@ class Strategy(backtesting.Strategy):
             scatter: plot circles instead of connected line segments
         """
         name = name or column_name
-        self.I(lambda x: x, self.data.df[column_name], name=name, overlay=overlay, scatter=scatter)
+        display_name = name[2:] if name.startswith('i_') else name
+        self.I(lambda x: x, self.data.df[column_name],
+               name=display_name, overlay=overlay, scatter=scatter)

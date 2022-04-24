@@ -19,7 +19,7 @@ class SmaCrossWithIndicators(SmaCross):
                name='Hurst (change)', overlay=False)
         self.I(indicator.rsi, self.data.Close, 20, overlay=False)
 
-        super(SmaCrossWithIndicators, self).init()
+        SmaCross.init(self)
 
     def next(self):
         if self.hurst > 0.6:
