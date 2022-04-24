@@ -7,6 +7,7 @@ import click
 from dateutil import parser
 
 from jellyfish import candles_loader, utils
+from jellyfish.core import Client
 
 
 @click.command()
@@ -35,7 +36,7 @@ def download_candles(pair, from_date, to_date, interval):
     """
     utils.disable_warnings()
     candles_loader.load_candles_history(
-        client=utils.load_binance_client(),
+        client=Client(),
         pair_sym=pair,
         start_dt=parser.parse(from_date),
         end_dt=parser.parse(to_date),

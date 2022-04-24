@@ -1,19 +1,20 @@
 from unittest import TestCase
 
+from datetime import timedelta
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
-from jellyfish import CANDLES_HISTORY_PATH
-from jellyfish.candles_loader import load_candles_history, clean_candles_cache
-from jellyfish.utils import load_binance_client
+from jellyfish.constants import CANDLES_HISTORY_PATH
+from jellyfish.candles_loader import load_candles_history, clean_candles_cache, get_sample_frame
+from jellyfish.core import Client
 
 
 class Test(TestCase):
-    def load_for_interval(self, interval):
-        client = load_binance_client()
+    def load_for_interval(self, interval, window_size: timedelta):
+        client = Client()
         pair = 'XRPUSDT'
         start_dt = parser.parse('2021-01-09 12:22')
-        end_dt = parser.parse('2021-09-09 10:00')
+        end_dt = start_dt + window_size
         interval = interval
 
         clean_candles_cache()
@@ -26,11 +27,19 @@ class Test(TestCase):
         assert_frame_equal(data, cached_data)
 
     def test_load_btc_history_1d(self):
-        self.load_for_interval('1d')
+        self.load_for_interval('1d', timedelta(days=240))
 
     def test_load_btc_history_1h(self):
-        self.load_for_interval('1h')
+        self.load_for_interval('1h', timedelta(hours=240))
+
+    def test_get_sample_frame(self):
+        clean_candles_cache()
+        self.assertIsNone(get_sample_frame())
+
+        load_candles_history(Client(), 'XRPUSDT', parser.parse('2021-01-08 12:22'),
+                             parser.parse('2021-01-09 12:22'), '1h')
+        self.assertIsNotNone(get_sample_frame())
 
     def test_load_binance_client(self):
-        client = load_binance_client()
+        client = Client()
         client.ping()

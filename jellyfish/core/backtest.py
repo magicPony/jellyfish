@@ -2,12 +2,33 @@
 Backtesting.py Backtest module wrapper
 """
 import logging
+from datetime import timedelta
 
 import backtesting
 import numpy as np
 import pandas as pd
 
-from jellyfish import CACHE_PATH, utils
+from jellyfish.constants import CACHE_PATH, DATE
+
+
+def _get_ticks_per_year(ohlc: pd.DataFrame):
+    """
+    Calculate average ticks per year
+    Args:
+        ohlc: dataframe
+
+    Returns: ticks per year
+    """
+    if DATE in ohlc.columns:
+        dates = ohlc[DATE]
+    elif isinstance(ohlc.index, pd.DatetimeIndex):
+        dates = ohlc.index
+    else:
+        return None
+
+    dates = dates.tolist()
+    years = (dates[-1] - dates[0]) / timedelta(days=365)
+    return len(ohlc) / years
 
 
 class Backtest(backtesting.Backtest):
@@ -42,7 +63,7 @@ class Backtest(backtesting.Backtest):
         equity, drawdown = equity['Equity'], equity['DrawdownPct']
         returns = equity.pct_change(1)
 
-        tpy = utils.get_ticks_per_year(self._data)
+        tpy = _get_ticks_per_year(self._data)
         rf_rate = 0  # TODO: replace risk-free rate with an appropriate value
         try:
             stats['Sharpe Ratio'] = (returns.mean() * (tpy ** 0.5) - rf_rate) / returns.std()
