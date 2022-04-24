@@ -1,52 +1,11 @@
 """
 Utility functions
 """
-import json
-import logging
 import warnings
-from datetime import timedelta
 
 import pandas as pd
 
-from jellyfish import PRIVATE_DATA_PATH, DATE
 from jellyfish.core import Strategy, Backtest
-
-
-def get_ticks_per_year(ohlc: pd.DataFrame):
-    """
-    Calculate average ticks per year
-    Args:
-        ohlc: dataframe
-
-    Returns: ticks per year
-    """
-    if DATE in ohlc.columns:
-        dates = ohlc[DATE]
-    elif isinstance(ohlc.index, pd.DatetimeIndex):
-        dates = ohlc.index
-    else:
-        return None
-
-    dates = dates.tolist()
-    years = (dates[-1] - dates[0]) / timedelta(days=365)
-    return len(ohlc) / years
-
-
-def load_binance_credentials():  # pragma: no cover
-    """
-    Loads json with Binance API credentials
-    :return: json with creds
-    """
-    try:
-        with (PRIVATE_DATA_PATH / 'binance_creds.json').open() as creds_file:
-            return json.load(creds_file)
-
-    except FileNotFoundError as exc:
-        logging.warning(exc)
-        return {
-            'key': None,
-            'secret': None
-        }
 
 
 def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True):

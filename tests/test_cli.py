@@ -29,7 +29,7 @@ class TestDirectCall(TestCase):
     def test_download_candles(self):
         pair = 'BTCUSDT'
         from_str = '2019-09-09'
-        interval = '4h'
+        interval = '1w'
 
         runner = CliRunner()
         result = runner.invoke(cli.download_candles, [

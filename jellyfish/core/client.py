@@ -1,9 +1,29 @@
 """
 Unicorn-Binance rest API manager wrapper
 """
+import logging
+import json
+
 from unicorn_binance_rest_api import BinanceRestApiManager
 
-from jellyfish import utils
+from jellyfish.constants import PRIVATE_DATA_PATH
+
+
+def _load_binance_credentials():  # pragma: no cover
+    """
+    Loads json with Binance API credentials
+    :return: json with creds
+    """
+    try:
+        with (PRIVATE_DATA_PATH / 'binance_creds.json').open() as creds_file:
+            return json.load(creds_file)
+
+    except FileNotFoundError as exc:
+        logging.warning(exc)
+        return {
+            'key': None,
+            'secret': None
+        }
 
 
 class Client(BinanceRestApiManager):
@@ -23,7 +43,7 @@ class Client(BinanceRestApiManager):
         key = None
         secret = None
         if not demo_user:
-            creds = utils.load_binance_credentials()
+            creds = _load_binance_credentials()
             key = creds['key']
             secret = creds['secret']
 

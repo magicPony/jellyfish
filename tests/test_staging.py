@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import pandas as pd
 
-from jellyfish import utils, transform, indicator
+from jellyfish import transform, indicator
 from jellyfish.alpha import SmaCross, BuyAndHold
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Backtest, Client
