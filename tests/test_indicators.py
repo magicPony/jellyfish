@@ -18,7 +18,7 @@ class Test(TestCase):
     def test_indicators(self):
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=30)
-        frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1h')
+        frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
 
         frame['zigzag'] = indicator.zigzag(frame.Close.to_numpy(), 2e-2)
         frame['hurst_random_walk'] = indicator.hurst(frame.Close.to_numpy(), 200, 'random_walk')

@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from datetime import timedelta
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
@@ -9,11 +10,11 @@ from jellyfish.core import Client
 
 
 class Test(TestCase):
-    def load_for_interval(self, interval):
+    def load_for_interval(self, interval, window_size: timedelta):
         client = Client()
         pair = 'XRPUSDT'
         start_dt = parser.parse('2021-01-09 12:22')
-        end_dt = parser.parse('2021-09-09 10:00')
+        end_dt = start_dt + window_size
         interval = interval
 
         clean_candles_cache()
@@ -26,10 +27,10 @@ class Test(TestCase):
         assert_frame_equal(data, cached_data)
 
     def test_load_btc_history_1d(self):
-        self.load_for_interval('1d')
+        self.load_for_interval('1d', timedelta(days=240))
 
     def test_load_btc_history_1h(self):
-        self.load_for_interval('1h')
+        self.load_for_interval('1h', timedelta(hours=240))
 
     def test_load_binance_client(self):
         client = Client()
