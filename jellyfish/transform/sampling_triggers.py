@@ -52,16 +52,3 @@ def apply_column_greater(column_name, func, thr):
     Returns: trigger value
     """
     return lambda ohlc: ohlc[column_name].apply(func) > thr
-
-
-def apply_column_less(column_name, func, thr):
-    """
-    Generic "apply and compare" trigger callback
-    Args:
-        column_name: column name
-        func: function to apply for column
-        thr: comparable threshold value
-
-    Returns: trigger value
-    """
-    return lambda ohlc: ohlc[column_name].apply(func) < thr

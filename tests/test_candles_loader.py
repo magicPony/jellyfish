@@ -5,7 +5,7 @@ from dateutil import parser
 from pandas.testing import assert_frame_equal
 
 from jellyfish.constants import CANDLES_HISTORY_PATH
-from jellyfish.candles_loader import load_candles_history, clean_candles_cache
+from jellyfish.candles_loader import load_candles_history, clean_candles_cache, get_sample_frame
 from jellyfish.core import Client
 
 
@@ -31,6 +31,14 @@ class Test(TestCase):
 
     def test_load_btc_history_1h(self):
         self.load_for_interval('1h', timedelta(hours=240))
+
+    def test_get_sample_frame(self):
+        clean_candles_cache()
+        self.assertIsNone(get_sample_frame())
+
+        load_candles_history(Client(), 'XRPUSDT', parser.parse('2021-01-08 12:22'),
+                             parser.parse('2021-01-09 12:22'), '1h')
+        self.assertIsNotNone(get_sample_frame())
 
     def test_load_binance_client(self):
         client = Client()
