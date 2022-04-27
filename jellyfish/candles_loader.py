@@ -11,7 +11,7 @@ from tqdm.auto import tqdm
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
-from jellyfish.constants import CANDLES_HISTORY_PATH
+from jellyfish.constants import CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME
 
 CANDLES_IN_CHUNK = 1000
 
@@ -40,16 +40,16 @@ def binance_response_to_dataframe(candles) -> pd.DataFrame:
     candles = [to_numbers(i) for i in candles]
     candles = np.array(candles)
     candles = pd.DataFrame({
-        'Date': candles[:, 6],
-        'Open': candles[:, 1],
-        'High': candles[:, 2],
-        'Low': candles[:, 3],
-        'Close': candles[:, 4],
-        'Volume': candles[:, 5],
-        'QuoteAssetVolume': candles[:, 7],
-        'NumOfTrades': candles[:, 8],
-        'TakerBuyAssetVolume': candles[:, 9],
-        'TakerSellAssetVolume': candles[:, 10],
+        DATE: candles[:, 6],
+        OPEN: candles[:, 1],
+        HIGH: candles[:, 2],
+        LOW: candles[:, 3],
+        CLOSE: candles[:, 4],
+        VOLUME: candles[:, 5],
+        QUOTE_ASSET_VOLUME: candles[:, 7],
+        NUM_OF_TRADES: candles[:, 8],
+        TAKER_BUY_ASSET_VOLUME: candles[:, 9],
+        TAKER_SELL_ASSET_VOLUME: candles[:, 10],
     })
 
     candles.Date = candles.Date.apply(to_datetime)
@@ -63,7 +63,13 @@ def read_candles_frame(frame_path):
     """
     Read dataframe with candles
     """
-    return pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
+    df = pd.read_feather(frame_path)
+    if DATE in df.columns:
+        df.set_index(DATE, inplace=True)
+        df.index = pd.to_datetime(df.index)
+
+    return df
+    # return pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
 
 
 def get_sample_frame():
@@ -92,7 +98,7 @@ def load_candles_chunk(
     :param interval: candle interval
     :return: candles history chunk dataframe
     """
-    cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.csv'
+    cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.ftr'
     if cache_path.exists():
         logging.debug('Loading candles history from cache')
         return read_candles_frame(cache_path)
@@ -101,7 +107,7 @@ def load_candles_chunk(
     candles = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
     frame = binance_response_to_dataframe(candles)
     cache_path.parent.mkdir(exist_ok=True, parents=True)
-    frame.to_csv(cache_path)
+    frame.reset_index().to_feather(cache_path)
     return frame
 
 
