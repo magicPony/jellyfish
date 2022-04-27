@@ -11,7 +11,9 @@ from tqdm.auto import tqdm
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
-from jellyfish.constants import CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME
+from jellyfish.constants import (CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME,
+                                 QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME,
+                                 TAKER_SELL_ASSET_VOLUME)
 
 CANDLES_IN_CHUNK = 1000
 
@@ -63,13 +65,12 @@ def read_candles_frame(frame_path):
     """
     Read dataframe with candles
     """
-    df = pd.read_feather(frame_path)
-    if DATE in df.columns:
-        df.set_index(DATE, inplace=True)
-        df.index = pd.to_datetime(df.index)
+    frame = pd.read_feather(frame_path)
+    if DATE in frame.columns:
+        frame.set_index(DATE, inplace=True)
+        frame.index = pd.to_datetime(frame.index)
 
-    return df
-    # return pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
+    return frame
 
 
 def get_sample_frame():
