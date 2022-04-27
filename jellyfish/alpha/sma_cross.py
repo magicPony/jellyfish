@@ -21,6 +21,7 @@ class SmaCross(Strategy):
         # Precompute the two moving averages
         self.sma1 = self.I(SMA, self.data.Close, self.n1)
         self.sma2 = self.I(SMA, self.data.Close, self.n2)
+        Strategy.init(self)
 
     def next(self):
         # If sma1 crosses above sma2, close any existing
