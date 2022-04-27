@@ -12,7 +12,6 @@ pylint
 unicorn-binance-rest-api
 python-dateutil~=2.8.2
 click~=8.1.2
-pyarrow
 stocktrends
 jellyfish~=0.1
 matplotlib

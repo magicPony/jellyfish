@@ -65,12 +65,7 @@ def read_candles_frame(frame_path):
     """
     Read dataframe with candles
     """
-    frame = pd.read_feather(frame_path)
-    if DATE in frame.columns:
-        frame.set_index(DATE, inplace=True)
-        frame.index = pd.to_datetime(frame.index)
-
-    return frame
+    return pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
 
 
 def get_sample_frame():
@@ -99,7 +94,7 @@ def load_candles_chunk(
     :param interval: candle interval
     :return: candles history chunk dataframe
     """
-    cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.ftr'
+    cache_path = CANDLES_HISTORY_PATH / f'{pair_sym}_{interval}_{start_dt}_{end_dt}.csv'
     if cache_path.exists():
         logging.debug('Loading candles history from cache')
         return read_candles_frame(cache_path)
@@ -108,7 +103,7 @@ def load_candles_chunk(
     candles = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
     frame = binance_response_to_dataframe(candles)
     cache_path.parent.mkdir(exist_ok=True, parents=True)
-    frame.reset_index().to_feather(cache_path)
+    frame.to_csv(cache_path)
     return frame
 
 
