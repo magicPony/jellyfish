@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, date
 
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 

@@ -3,7 +3,7 @@ List of possible sampling technics
 """
 import pandas as pd
 import stocktrends
-from tqdm import trange
+from tqdm.auto import trange
 from zigzag import peak_valley_pivots
 
 import jellyfish.transform.sampling_triggers as triggers
