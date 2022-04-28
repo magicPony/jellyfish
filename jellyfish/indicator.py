@@ -254,6 +254,26 @@ def bollinger_bands(data: pd.DataFrame, n_lookback, n_std):
     return upper, lower
 
 
+def dumb_sr_lines(high, low, n_lookback=20, low_extreme=0.1, high_extreme=0.1):
+    """
+    Compute Support/Resistance lines
+    Args:
+        high: high price values
+        low: low price values
+        n_lookback: lookback ticks number
+        low_extreme: support line high-low range weight
+        high_extreme: resistance line high-low range weight
+    """
+    rolling = lambda data, cb: np.array([cb(data[i - n_lookback:i + 1])
+                                         for i in range(n_lookback, len(data))])
+    rlng_high = rolling(high, np.max)
+    rlng_low = rolling(low, np.min)
+    rlng_range = rlng_high - rlng_low
+    support = _add_nans_prefix(rlng_low + rlng_range * low_extreme, len(high))
+    resistance = _add_nans_prefix(rlng_high - rlng_range * high_extreme, len(high))
+    return support, resistance
+
+
 def awesome(high, low, fast_period=5, slow_period=34):
     """
     Compute Awesome Oscillator

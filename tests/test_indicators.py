@@ -8,37 +8,38 @@ from jellyfish.core import Backtest, Strategy, Client
 
 class DummyStrategyWithIndicators(Strategy):
     def init(self):
-        self.I(indicator.wad, self.data.High.data, self.data.Low.data, self.data.Close,
+        self.I(indicator.dumb_sr_lines, self.data.High, self.data.Low, name='S/R line',
+               overlay=True)
+        self.I(indicator.wad, self.data.High, self.data.Low, self.data.Close,
                name='Williams Accumulation/Distribution')
-        self.I(indicator.will_r, self.data.High.data, self.data.Low.data, self.data.Close,
+        self.I(indicator.will_r, self.data.High, self.data.Low, self.data.Close,
                name='Williams %R')
-        self.I(indicator.wilders, self.data.Close.data, 5, name='Wilders Smoothing [fast]',
+        self.I(indicator.wilders, self.data.Close, 5, name='Wilders Smoothing [fast]',
                overlay=True)
-        self.I(indicator.wilders, self.data.Close.data, 20, name='Wilders Smoothing [slow]',
+        self.I(indicator.wilders, self.data.Close, 20, name='Wilders Smoothing [slow]',
                overlay=True)
-        self.I(indicator.wilders, self.data.Close.data, 40, name='Wilders Smoothing [very slow]',
+        self.I(indicator.wilders, self.data.Close, 40, name='Wilders Smoothing [very slow]',
                overlay=True)
-        self.I(indicator.stoch_rsi, self.data.Close.data, name='Stochastic RSI')
-        self.I(indicator.stoch, self.data.High.data, self.data.Low.data, self.data.Close.data,
+        self.I(indicator.stoch_rsi, self.data.Close, name='Stochastic RSI')
+        self.I(indicator.stoch, self.data.High, self.data.Low, self.data.Close,
                name='Stochastic Oscillator')
-        self.I(indicator.aroon, self.data.High.data, self.data.Low.data)
-        self.I(indicator.aroon_oscillator, self.data.High.data, self.data.Low.data,
-               name='Aroon oscillator')
-        self.I(indicator.fisher, self.data.High.data, self.data.Low.data, name='Fished')
-        self.I(indicator.cmo, self.data.Close.data, name='Chande Momentum Oscillator')
-        self.I(indicator.bop, self.data.Open.data, self.data.High.data, self.data.Low.data,
-               self.data.Close.data, name='Balance of Power')
-        self.I(indicator.dpo, self.data.Close.data, name='Detrended Price Oscillator')
-        self.I(indicator.kvo, self.data.High.data, self.data.Low.data, self.data.Close.data,
-               self.data.Volume.data, 15, 25, name='Klinger Volume Oscillator')
-        self.I(indicator.lag, self.data.Close.data, name='Lag', overlay=True)
-        self.I(indicator.mass, self.data.High.data, self.data.Low.data, name='Mass')
-        self.I(indicator.rsi, self.data.Close.data, 20)
+        self.I(indicator.aroon, self.data.High, self.data.Low)
+        self.I(indicator.aroon_oscillator, self.data.High, self.data.Low, name='Aroon Oscillator')
+        self.I(indicator.fisher, self.data.High, self.data.Low, name='Fished')
+        self.I(indicator.cmo, self.data.Close, name='Chande Momentum Oscillator')
+        self.I(indicator.bop, self.data.Open, self.data.High, self.data.Low,
+               self.data.Close, name='Balance of Power')
+        self.I(indicator.dpo, self.data.Close, name='Detrended Price Oscillator')
+        self.I(indicator.kvo, self.data.High, self.data.Low, self.data.Close, self.data.Volume,
+               15, 25, name='Klinger Volume Oscillator')
+        self.I(indicator.lag, self.data.Close, name='Lag', overlay=True)
+        self.I(indicator.mass, self.data.High, self.data.Low, name='Mass')
+        self.I(indicator.rsi, self.data.Close, 20)
         self.I(indicator.bollinger_bands, self.data.df, 10, 1.5, name='Bollinger bands')
-        self.I(indicator.ema, self.data.Close.data, 20, 1.5, name='EMA')
-        self.I(indicator.sma, self.data.Close.data, 20, name='SMA', overlay=True)
+        self.I(indicator.ema, self.data.Close, 20, 1.5, name='EMA')
+        self.I(indicator.sma, self.data.Close, 20, name='SMA', overlay=True)
         self.I(indicator.macd, self.data.Close, 12, 26, 9)
-        self.I(indicator.awesome, self.data.High.data, self.data.Low.data, name='Awesome')
+        self.I(indicator.awesome, self.data.High, self.data.Low, name='Awesome')
 
         Strategy.init(self)
 
