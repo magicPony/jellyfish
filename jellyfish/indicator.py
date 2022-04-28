@@ -28,6 +28,66 @@ def _add_nans_prefix(seq: np.ndarray, target_len):
     return np.array(seq)
 
 
+def wad(high, low, close):
+    """
+    Compute Williams Accumulation/Distribution
+    Args:
+        high: high price values
+        low: low price values
+        close: close price values
+    """
+    return _add_nans_prefix(ti.wad(np.array(high), np.array(low), np.array(close)), len(high))
+
+
+def will_r(high, low, close, period=25):
+    """
+    Compute Williams %R
+    Args:
+        high: high price values
+        low: low price values
+        close: close price values
+        period: rolling window size
+    """
+    return _add_nans_prefix(ti.willr(np.array(high), np.array(low), np.array(close), period),
+                            target_len=len(high))
+
+
+def wilders(signal: Iterable, period):
+    """
+    Compute Wilders Smoothing
+    Args:
+        signal: values sequence
+        period: rolling window size
+    """
+    return _add_nans_prefix(ti.wilders(np.array(signal), period), target_len=len(signal))
+
+
+def stoch_rsi(signal: Iterable, period=40):
+    """
+    Compute Stochastic RSI
+    Args:
+        signal: values sequence
+        period: rolling window size
+    """
+    return _add_nans_prefix(ti.stochrsi(np.array(signal), period), target_len=len(signal))
+
+
+def stoch(high, low, close, pct_k_period=5, pct_k_slowing_period=3, pct_d_period=3):
+    """
+    Compute Stochastic Oscillator
+    Args:
+        high: high price values
+        low: low price values
+        close: close price values
+        pct_k_period: %k period
+        pct_k_slowing_period: %k slowing period
+        pct_d_period: %d period
+    """
+    ind = ti.stoch(np.array(high), np.array(low), np.array(close),
+                   pct_k_period, pct_k_slowing_period, pct_d_period)
+    return [_add_nans_prefix(i, len(high)) for i in ind]
+
+
 def fisher(high, low, period=25):
     """
     Compute Fisher Transform
@@ -63,7 +123,6 @@ def bop(opens, high, low, close):
         close: close prices sequence
     """
     return ti.bop(np.array(opens), np.array(high), np.array(low), np.array(close))
-
 
 def dpo(signal, period=25):
     """

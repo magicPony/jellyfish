@@ -8,6 +8,19 @@ from jellyfish.core import Backtest, Strategy, Client
 
 class DummyStrategyWithIndicators(Strategy):
     def init(self):
+        self.I(indicator.wad, self.data.High.data, self.data.Low.data, self.data.Close,
+               name='Williams Accumulation/Distribution')
+        self.I(indicator.will_r, self.data.High.data, self.data.Low.data, self.data.Close,
+               name='Williams %R')
+        self.I(indicator.wilders, self.data.Close.data, 5, name='Wilders Smoothing [fast]',
+               overlay=True)
+        self.I(indicator.wilders, self.data.Close.data, 20, name='Wilders Smoothing [slow]',
+               overlay=True)
+        self.I(indicator.wilders, self.data.Close.data, 40, name='Wilders Smoothing [very slow]',
+               overlay=True)
+        self.I(indicator.stoch_rsi, self.data.Close.data, name='Stochastic RSI')
+        self.I(indicator.stoch, self.data.High.data, self.data.Low.data, self.data.Close.data,
+               name='Stochastic Oscillator')
         self.I(indicator.aroon, self.data.High.data, self.data.Low.data)
         self.I(indicator.aroon_oscillator, self.data.High.data, self.data.Low.data,
                name='Aroon oscillator')
