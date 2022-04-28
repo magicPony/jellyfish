@@ -8,6 +8,7 @@ from jellyfish.core import Backtest, Strategy, Client
 
 class DummyStrategyWithIndicators(Strategy):
     def init(self):
+        self.I(indicator.dumb_sr_lines, self.data.High.data, self.data.Low.data, name='S/R line', overlay=True)
         self.I(indicator.wad, self.data.High.data, self.data.Low.data, self.data.Close,
                name='Williams Accumulation/Distribution')
         self.I(indicator.will_r, self.data.High.data, self.data.Low.data, self.data.Close,
