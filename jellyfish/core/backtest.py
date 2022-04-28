@@ -36,7 +36,7 @@ class Backtest(backtesting.Backtest):
     Wrapper for Backtest
     """
 
-    def plot(self, *, filename=None, show_legend=True, open_browser=True, **kwargs):
+    def plot(self, *, filename=None, show_legend=True, open_browser=False, **kwargs):
         """
         Plot the progression of the last backtest run.
 
