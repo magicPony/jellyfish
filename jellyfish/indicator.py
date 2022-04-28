@@ -254,6 +254,21 @@ def bollinger_bands(data: pd.DataFrame, n_lookback, n_std):
     return upper, lower
 
 
+def awesome(high, low, fast_period=5, slow_period=34):
+    """
+    Compute Awesome Oscillator
+    Args:
+        high: signal sequence for highs
+        low: signal sequence for lows
+        fast_period: fast SMA period
+        slow_period: slow SMA period
+    """
+    midprice = (np.array(high) + np.array(low)) / 2
+    fast_ma = ti.sma(np.array(midprice), fast_period)[slow_period-fast_period:]
+    slow_ma = ti.sma(np.array(midprice), slow_period)
+    return _add_nans_prefix(fast_ma - slow_ma, len(high))
+
+
 def aroon_oscillator(signal_high: Iterable = None, signal_low: Iterable = None, period=25):
     """
     Compute aroon oscillator from aroon functions
