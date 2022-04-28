@@ -31,13 +31,14 @@ class DummyStrategyWithIndicators(Strategy):
         self.I(indicator.dpo, self.data.Close.data, name='Detrended Price Oscillator')
         self.I(indicator.kvo, self.data.High.data, self.data.Low.data, self.data.Close.data,
                self.data.Volume.data, 15, 25, name='Klinger Volume Oscillator')
-        self.I(indicator.lag, self.data.Close.data, name='Lag')
+        self.I(indicator.lag, self.data.Close.data, name='Lag', overlay=True)
         self.I(indicator.mass, self.data.High.data, self.data.Low.data, name='Mass')
         self.I(indicator.rsi, self.data.Close.data, 20)
         self.I(indicator.bollinger_bands, self.data.df, 10, 1.5, name='Bollinger bands')
         self.I(indicator.ema, self.data.Close.data, 20, 1.5, name='EMA')
         self.I(indicator.sma, self.data.Close.data, 20, name='SMA', overlay=True)
         self.I(indicator.macd, self.data.Close, 12, 26, 9)
+        self.I(indicator.awesome, self.data.High.data, self.data.Low.data, name='Awesome')
 
         Strategy.init(self)
 
