@@ -47,4 +47,8 @@ class Client(BinanceRestApiManager):
             key = creds['key']
             secret = creds['secret']
 
-        BinanceRestApiManager.__init__(self, api_key=key, api_secret=secret, exchange=exchange)
+        try:
+            BinanceRestApiManager.__init__(self, api_key=key, api_secret=secret, exchange=exchange)
+        except ConnectionError:
+            BinanceRestApiManager.__init__(self, api_key=None, api_secret=None, exchange=exchange)
+            logging.warning('Set demo user as fallback setup due to problems with internet')

@@ -124,6 +124,7 @@ def bop(opens, high, low, close):
     """
     return ti.bop(np.array(opens), np.array(high), np.array(low), np.array(close))
 
+
 def dpo(signal, period=25):
     """
     Compute Detrended Price Oscillator
@@ -251,7 +252,7 @@ def bollinger_bands(data: pd.DataFrame, n_lookback, n_std):
     lower[:n_lookback] = None
     upper[:n_lookback] = None
 
-    return upper, lower
+    return lower, upper
 
 
 def dumb_sr_lines(high, low, n_lookback=20, low_extreme=0.1, high_extreme=0.1):
