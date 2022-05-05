@@ -11,7 +11,7 @@ from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE)
 from jellyfish.train import train_loop
 
 
-def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col):
+def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col, change_thr):
     df['i_wad'] = indicator.wad(df[high_col], df[low_col], df[close_col])
     for period in [3, 5, 8, 15, 25]:
         df[f'i_will_r_{period}'] = indicator.will_r(df[high_col], df[low_col],
@@ -49,6 +49,7 @@ def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col):
     df['Return'] = df[close_col] / df[open_col] - 1
 
     df['target'] = df['Return'].rolling(3).sum().to_numpy().astype(np.float32)
+    df = df[df.target > change_thr]
     df.dropna(inplace=True)
 
     return df
@@ -65,18 +66,23 @@ class Indicator:
         self.close_col = close_col
         self.change_thr = change_thr
         self.depth = depth
+
+        self._means = None
+        self._stds = None
+
         self.model = IndicatorsEncoder(Indicator.FEATURES_NUM, depth)
 
     def fit(self, df: pd.DataFrame):
-        df = preprocess_data(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
+        df = preprocess_data(df.copy(), self.open_col, self.high_col, self.low_col,
+                             self.close_col, self.change_thr)
         df.dropna(inplace=True)
 
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
-        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(), df['target'], depth=self.depth,
-                                    change_thr=self.change_thr)
-        loader = DataLoader(dataset=dataset, batch_size=300, shuffle=True)
+        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(), df['target'], depth=self.depth)
+        self._means = dataset.means
+        self._stds = dataset.stds
 
-        self.model = IndicatorsEncoder(len(indicator_cols), self.depth)
+        loader = DataLoader(dataset=dataset, batch_size=300, shuffle=True)
         criterion = torch.nn.HuberLoss(reduction='mean')
         optimizer = torch.optim.Adam(self.model.parameters(), lr=2e-3)
 
@@ -84,3 +90,21 @@ class Indicator:
 
         plt.plot(train_history)
         plt.show()
+
+    def transform(self, df: pd.DataFrame):
+        print('Input len:', len(df))
+        df = preprocess_data(df.copy(), self.open_col, self.high_col,
+                             self.low_col, self.close_col, self.change_thr)
+        print('Preprocessing len:', len(df))
+        indicator_cols = [c for c in df.columns if c.startswith('i_')]
+        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(), df.target,
+                                    depth=self.depth, means=self._means, stds=self._stds)
+        loader = DataLoader(dataset=dataset, batch_size=300, shuffle=True)
+        prediction = []
+        for x, _ in loader:
+            y_pred = self.model(x)
+            prediction.append(y_pred.detach().numpy().flatten())
+
+        prediction = np.concatenate(prediction)
+        print('Prediction len:', len(prediction))
+        return prediction

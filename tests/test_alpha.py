@@ -15,3 +15,4 @@ class Test(TestCase):
 
         ind = Indicator()
         ind.fit(df)
+        ind.transform(df)
