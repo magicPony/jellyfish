@@ -7,11 +7,14 @@ from torch.utils.data import DataLoader
 from jellyfish import indicator
 from jellyfish.alpha.indicators_stack_encoder.dataset import IndicatorsDataset
 from jellyfish.alpha.indicators_stack_encoder.model import IndicatorsEncoder
-from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE)
+from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, DATE)
 from jellyfish.train import train_loop
 
 
 def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col, change_thr):
+    df['Return'] = df[close_col] / df[open_col] - 1
+    df['target'] = df['Return'].rolling(3).sum().to_numpy().astype(np.float32)
+
     df['i_wad'] = indicator.wad(df[high_col], df[low_col], df[close_col])
     for period in [3, 5, 8, 15, 25]:
         df[f'i_will_r_{period}'] = indicator.will_r(df[high_col], df[low_col],
@@ -46,10 +49,8 @@ def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col, ch
                                                      kind=indicator.HURST_RANDOM_WALK)
     df[f'i_hurst_price_{period}'] = indicator.hurst(df[close_col], kind=indicator.HURST_PRICE)
     df[f'i_hurst_change_{period}'] = indicator.hurst(df[close_col], kind=indicator.HURST_CHANGE)
-    df['Return'] = df[close_col] / df[open_col] - 1
 
-    df['target'] = df['Return'].rolling(3).sum().to_numpy().astype(np.float32)
-    df = df[df.target > change_thr]
+    df = df[df.target.abs() > change_thr]
     df.dropna(inplace=True)
 
     return df
@@ -72,6 +73,18 @@ class Indicator:
 
         self.model = IndicatorsEncoder(Indicator.FEATURES_NUM, depth)
 
+    def _pick_threshold(self, loader: DataLoader):
+        predictions = []
+        targets = []
+        for x, y in loader:
+            y_pred = self.model(x)
+            predictions.append(y_pred.detach().numpy())
+            targets.append(y.numpy())
+
+        predictions = np.concatenate(predictions)
+        targets = np.concatenate(targets)
+        return np.mean(targets)
+
     def fit(self, df: pd.DataFrame):
         df = preprocess_data(df.copy(), self.open_col, self.high_col, self.low_col,
                              self.close_col, self.change_thr)
@@ -82,16 +95,20 @@ class Indicator:
         self._means = dataset.means
         self._stds = dataset.stds
 
-        loader = DataLoader(dataset=dataset, batch_size=300, shuffle=True)
+        loader = DataLoader(dataset=dataset, batch_size=100, shuffle=True)
         criterion = torch.nn.HuberLoss(reduction='mean')
         optimizer = torch.optim.Adam(self.model.parameters(), lr=2e-3)
 
         train_history, _ = train_loop(self.model, loader, criterion, optimizer, epochs_num=110)
 
+        self.threshold = self._pick_threshold(loader)
+
+        plt.title('Train loss history')
         plt.plot(train_history)
         plt.show()
 
-    def transform(self, df: pd.DataFrame):
+    def transform(self, df: pd.DataFrame, date_col=DATE):
+        dates = df[date_col].tolist()
         print('Input len:', len(df))
         df = preprocess_data(df.copy(), self.open_col, self.high_col,
                              self.low_col, self.close_col, self.change_thr)
@@ -106,5 +123,12 @@ class Indicator:
             prediction.append(y_pred.detach().numpy().flatten())
 
         prediction = np.concatenate(prediction)
-        print('Prediction len:', len(prediction))
-        return prediction
+        ret = np.zeros((len(dates))) * np.nan
+        index = 0
+        for date, signal in zip(df[date_col].tolist(), prediction):
+            while dates[index] < date:
+                index += 1
+
+            ret[index] = 1 if signal > self.threshold else -1
+
+        return ret
