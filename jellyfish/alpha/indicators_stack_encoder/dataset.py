@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torch.nn.functional import one_hot
 from torch.utils.data import Dataset
 
 
@@ -11,6 +12,7 @@ class IndicatorsDataset(Dataset):
 
         self.x = np.array(self.x, dtype=np.float32)
         self.y = np.expand_dims(y[depth - 1:], axis=-1).astype(np.float32)
+        self.y = np.clip(self.y, -1, 1) + 1
 
         if means is None:
             means = [self.x[:, :, i].mean() for i in range(self.x.shape[-1])]
@@ -28,4 +30,7 @@ class IndicatorsDataset(Dataset):
         return len(self.y)
 
     def __getitem__(self, i):
-        return torch.FloatTensor(self.x[i]), torch.FloatTensor(self.y[i])
+        x = torch.FloatTensor(self.x[i])
+        y = torch.LongTensor(self.y[i])
+        y = one_hot(y, 3).float()
+        return x, y.squeeze()

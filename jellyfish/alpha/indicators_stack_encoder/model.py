@@ -2,7 +2,7 @@ import torch
 
 
 class IndicatorsEncoder(torch.nn.Module):
-    def __init__(self, features_num, depth):
+    def __init__(self, depth, features_num):
         super().__init__()
         self.fcn = torch.nn.Sequential(
             torch.nn.Linear(features_num, features_num // 2),
@@ -21,5 +21,5 @@ class IndicatorsEncoder(torch.nn.Module):
     def forward(self, x: torch.Tensor):
         x = self.fcn(x).unsqueeze(-1)
         x = self.conv(x)
-        x = torch.softmax(x, dim=-1)
-        return x.squeeze(axis=-1).squeeze(axis=-1)
+        x = torch.softmax(x, dim=-2)
+        return x.squeeze()

@@ -26,15 +26,15 @@ class MlStrategy(Strategy):
 class Test(TestCase):
     def test_fcn(self):
         end_dt = datetime(year=2022, month=4, day=3)
-        start_dt = end_dt - timedelta(days=30 * 3) * 2
-        df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1d').reset_index()
+        start_dt = end_dt - timedelta(days=30 * 3)
+        df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1h').reset_index()
 
         change_thr = 0.015
         indicator = Indicator(change_thr=change_thr, depth=5)
-        indicator.fit(df)
-        df['signal'] = indicator.transform(df.reset_index())
-
-        bt = Backtest(df, MlStrategy, cash=1e6)
-        stats = bt.run()
-        bt.plot(open_browser=True)
-        print(stats)
+        indicator.fit(df.reset_index())
+        # df['signal'] = indicator.transform(df.reset_index())
+        #
+        # bt = Backtest(df, MlStrategy, cash=1e6)
+        # stats = bt.run()
+        # bt.plot(open_browser=True)
+        # print(stats)
