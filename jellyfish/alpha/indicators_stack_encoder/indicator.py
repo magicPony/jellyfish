@@ -11,9 +11,8 @@ from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, DATE)
 from jellyfish.train import train_loop
 
 
-def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col, change_thr):
+def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col):
     df['Return'] = df[close_col] / df[open_col] - 1
-    df['target'] = df['Return'].rolling(3).sum().to_numpy().astype(np.float32)
 
     df['i_wad'] = indicator.wad(df[high_col], df[low_col], df[close_col])
     for period in [3, 5, 8, 15, 25]:
@@ -50,7 +49,6 @@ def preprocess_data(df: pd.DataFrame, open_col, high_col, low_col, close_col, ch
     df[f'i_hurst_price_{period}'] = indicator.hurst(df[close_col], kind=indicator.HURST_PRICE)
     df[f'i_hurst_change_{period}'] = indicator.hurst(df[close_col], kind=indicator.HURST_CHANGE)
 
-    df = df[df.target.abs() > change_thr]
     df.dropna(inplace=True)
 
     return df
@@ -86,17 +84,16 @@ class Indicator:
         return np.mean(targets)
 
     def fit(self, df: pd.DataFrame):
-        df = preprocess_data(df.copy(), self.open_col, self.high_col, self.low_col,
-                             self.close_col, self.change_thr)
-        df.dropna(inplace=True)
-
+        df = preprocess_data(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
-        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(), df['target'], depth=self.depth)
+        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(),
+                                    (df.Return.rolling(3).sum() / self.change_thr).astype(np.int32),
+                                    depth=self.depth)
         self._means = dataset.means
         self._stds = dataset.stds
 
         loader = DataLoader(dataset=dataset, batch_size=100, shuffle=True)
-        criterion = torch.nn.HuberLoss(reduction='mean')
+        criterion = torch.nn.CrossEntropyLoss(reduction='mean')
         optimizer = torch.optim.Adam(self.model.parameters(), lr=2e-3)
 
         train_history, _ = train_loop(self.model, loader, criterion, optimizer, epochs_num=110)
@@ -111,7 +108,7 @@ class Indicator:
         dates = df[date_col].tolist()
         print('Input len:', len(df))
         df = preprocess_data(df.copy(), self.open_col, self.high_col,
-                             self.low_col, self.close_col, self.change_thr)
+                             self.low_col, self.close_col)
         print('Preprocessing len:', len(df))
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
         dataset = IndicatorsDataset(df[indicator_cols].to_numpy(), df.target,

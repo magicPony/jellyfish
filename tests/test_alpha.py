@@ -27,7 +27,7 @@ class Test(TestCase):
     def test_fcn(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 3) * 2
-        df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1h').reset_index()
+        df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1d').reset_index()
 
         change_thr = 0.015
         indicator = Indicator(change_thr=change_thr, depth=5)

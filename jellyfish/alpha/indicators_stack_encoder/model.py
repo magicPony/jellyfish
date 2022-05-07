@@ -13,7 +13,7 @@ class IndicatorsEncoder(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.Linear(features_num // 8, features_num // 16),
             torch.nn.ReLU(),
-            torch.nn.Linear(features_num // 16, 1),
+            torch.nn.Linear(features_num // 16, 3),
             torch.nn.ReLU(),
         )
         self.conv = torch.nn.Conv2d(depth, 1, 1)
@@ -21,4 +21,5 @@ class IndicatorsEncoder(torch.nn.Module):
     def forward(self, x: torch.Tensor):
         x = self.fcn(x).unsqueeze(-1)
         x = self.conv(x)
+        x = torch.softmax(x, dim=-1)
         return x.squeeze(axis=-1).squeeze(axis=-1)

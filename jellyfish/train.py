@@ -22,7 +22,7 @@ def feed_forward(model: torch.nn.Module,
     loss = 0
     for X, y in loader:
         y_pred = model(X)
-        loss += criterion(y, y_pred)
+        loss += criterion(y_pred, y)
 
     return loss / len(loader)
 
