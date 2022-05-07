@@ -11,7 +11,7 @@ class IndicatorsDataset(Dataset):
             self.x += [x[i - depth:i].tolist()]
 
         self.x = np.array(self.x, dtype=np.float32)
-        self.y = np.expand_dims(y[depth - 1:], axis=-1).astype(np.float32)
+        self.y = y[depth - 1:].astype(np.float32)
         self.y = np.clip(self.y, -1, 1) + 1
 
         if means is None:
@@ -25,6 +25,7 @@ class IndicatorsDataset(Dataset):
 
         self.means = means
         self.stds = stds
+        self.y = np.expand_dims(self.y, axis=-1)
 
     def __len__(self):
         return len(self.y)

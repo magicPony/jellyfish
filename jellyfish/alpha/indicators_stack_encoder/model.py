@@ -1,25 +1,27 @@
-import torch
+from torch import Tensor
+from torch.nn import Module, Linear, ReLU, Softmax, Sequential, Conv2d
 
 
-class IndicatorsEncoder(torch.nn.Module):
+class IndicatorsEncoder(Module):
     def __init__(self, depth, features_num):
         super().__init__()
-        self.fcn = torch.nn.Sequential(
-            torch.nn.Linear(features_num, features_num // 2),
-            torch.nn.ReLU(),
-            torch.nn.Linear(features_num // 2, features_num // 4),
-            torch.nn.ReLU(),
-            torch.nn.Linear(features_num // 4, features_num // 8),
-            torch.nn.ReLU(),
-            torch.nn.Linear(features_num // 8, features_num // 16),
-            torch.nn.ReLU(),
-            torch.nn.Linear(features_num // 16, 3),
-            torch.nn.ReLU(),
+        self.fcn = Sequential(
+            Linear(features_num, features_num // 2),
+            ReLU(),
+            Linear(features_num // 2, features_num // 4),
+            ReLU(),
+            Linear(features_num // 4, features_num // 8),
+            ReLU(),
+            Linear(features_num // 8, features_num // 16),
+            ReLU(),
+            Linear(features_num // 16, 3),
+            ReLU(),
         )
-        self.conv = torch.nn.Conv2d(depth, 1, 1)
+        self.softmax = Softmax(dim=2)
+        self.conv = Conv2d(depth, 1, 1)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: Tensor):
         x = self.fcn(x).unsqueeze(-1)
         x = self.conv(x)
-        x = torch.softmax(x, dim=-2)
+        x = self.softmax(x)
         return x.squeeze()

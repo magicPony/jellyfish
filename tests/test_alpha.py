@@ -1,23 +1,31 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
+import numpy as np
+
 from jellyfish.alpha.indicators_stack_encoder import Indicator
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Client, Strategy, Backtest
 
+POSITION_CHANGE_FACTOR = 0.01
+TRAIN_CHANGE_FACTOR = 0.015
+CANDLES_DEPTH = 3
+
 
 class MlStrategy(Strategy):
     def init(self):
-        self.change_thr = 0.015
-        self.signal = self.I(lambda x: x, self.data.df.signal)
+        indicator = Indicator(change_thr=TRAIN_CHANGE_FACTOR, depth=CANDLES_DEPTH)
+        self.signal = self.I(indicator.fit_transform, self.data.df.reset_index(), name='Algo signal')
 
     def next(self):
-        high_exit = self.data.Close * (1 + self.change_thr)
-        low_exit = self.data.Close * (1 - self.change_thr)
+        high_exit = self.data.Close * (1 + POSITION_CHANGE_FACTOR)
+        low_exit = self.data.Close * (1 - POSITION_CHANGE_FACTOR)
 
+        if self.signal[-1] is np.NAN:
+            return
         if self.signal > 0:
             self.position.close()
-            # self.buy(sl=low_exit, tp=high_exit)
+            self.buy(sl=low_exit, tp=high_exit)
         elif self.signal < 0:
             self.position.close()
             self.sell(tp=low_exit, sl=high_exit)
@@ -29,12 +37,7 @@ class Test(TestCase):
         start_dt = end_dt - timedelta(days=30 * 3)
         df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1h').reset_index()
 
-        change_thr = 0.015
-        indicator = Indicator(change_thr=change_thr, depth=5)
-        indicator.fit(df.reset_index())
-        # df['signal'] = indicator.transform(df.reset_index())
-        #
-        # bt = Backtest(df, MlStrategy, cash=1e6)
-        # stats = bt.run()
-        # bt.plot(open_browser=True)
-        # print(stats)
+        bt = Backtest(df.set_index('Date'), MlStrategy, cash=1e6)
+        stats = bt.run()
+        bt.plot(open_browser=True)
+        print(stats)
