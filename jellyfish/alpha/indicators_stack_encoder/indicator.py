@@ -11,7 +11,6 @@ from jellyfish.alpha.indicators_stack_encoder.model import IndicatorsEncoder
 from jellyfish.alpha.indicators_stack_encoder.preprocessing import add_indicators
 from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, DATE)
 from jellyfish.train import train_loop
-from jellyfish.indicator import _add_nans_prefix
 
 
 class Indicator:
@@ -30,17 +29,10 @@ class Indicator:
 
         self.model = None
 
-    def _pick_threshold(self, loader: DataLoader):
-        predictions = []
-        targets = []
-        for x, y in loader:
-            y_pred = self.model(x)
-            predictions.append(y_pred.detach().numpy())
-            targets.append(y.numpy())
-
-        predictions = np.concatenate(predictions)
-        targets = np.concatenate(targets)
-        return np.mean(targets)
+    @staticmethod
+    def _pick_threshold(loader: DataLoader):
+        targets = [y.numpy() for _, y in loader]
+        return np.concatenate(targets).mean()
 
     def fit_transform(self, df: pd.DataFrame, train_size: Union[float, int] = 0.8):
         if isinstance(train_size, float):
@@ -55,7 +47,7 @@ class Indicator:
         df = add_indicators(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
         dataset = IndicatorsDataset(df[indicator_cols].to_numpy(),
-                                    (df.Return.rolling(3).sum() // self.change_thr).fillna(0).to_numpy(),
+                                    (df.Return.rolling(2).sum() // self.change_thr).fillna(0).to_numpy(),
                                     depth=self.depth)
         self._means = dataset.means
         self._stds = dataset.stds
@@ -78,7 +70,7 @@ class Indicator:
         df = add_indicators(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
         dataset = IndicatorsDataset(df[indicator_cols].to_numpy(),
-                                    (df.Return.rolling(3).sum() // self.change_thr).fillna(0).to_numpy(),
+                                    (df.Return.rolling(2).sum() // self.change_thr).fillna(0).to_numpy(),
                                     depth=self.depth, means=self._means, stds=self._stds)
         loader = DataLoader(dataset=dataset, batch_size=300)
         prediction = []
@@ -98,6 +90,7 @@ class Indicator:
             while dates[index] < date:
                 index += 1
 
+            # ret[index] = signal - 1
             ret[index] = 1 if signal > self.threshold else -1
 
         return ret

@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-import numpy as np
-
 from jellyfish.alpha.indicators_stack_encoder import Indicator
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Client, Strategy, Backtest
@@ -13,31 +11,36 @@ CANDLES_DEPTH = 3
 
 
 class MlStrategy(Strategy):
+    algo = None
+
     def init(self):
-        indicator = Indicator(change_thr=TRAIN_CHANGE_FACTOR, depth=CANDLES_DEPTH)
-        self.signal = self.I(indicator.fit_transform, self.data.df.reset_index(), name='Algo signal')
+        self.signal = self.I(self.algo.transform, self.data.df.reset_index(), name='Algo signal')
 
     def next(self):
-        high_exit = self.data.Close * (1 + POSITION_CHANGE_FACTOR)
-        low_exit = self.data.Close * (1 - POSITION_CHANGE_FACTOR)
-
-        if self.signal[-1] is np.NAN:
+        if len(self.signal) < 2:
             return
-        if self.signal > 0:
+
+        if self.signal > 0 > self.signal[-2]:
             self.position.close()
-            self.buy(sl=low_exit, tp=high_exit)
-        elif self.signal < 0:
+            self.buy()
+        elif self.signal < 0 < self.signal[-2]:
             self.position.close()
-            self.sell(tp=low_exit, sl=high_exit)
+            self.sell()
 
 
 class Test(TestCase):
     def test_fcn(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 3)
-        df = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '1h').reset_index()
+        df = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
-        bt = Backtest(df.set_index('Date'), MlStrategy, cash=1e6)
+        indicator = Indicator(change_thr=TRAIN_CHANGE_FACTOR, depth=CANDLES_DEPTH)
+        train_df = df.iloc[:800]
+        val_df = df.iloc[800:]
+        indicator.fit(train_df)
+        MlStrategy.algo = indicator
+
+        bt = Backtest(val_df, MlStrategy, trade_on_close=True)
         stats = bt.run()
         bt.plot(open_browser=True)
         print(stats)
