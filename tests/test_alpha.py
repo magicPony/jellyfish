@@ -14,7 +14,8 @@ class MlStrategy(Strategy):
     algo = None
 
     def init(self):
-        self.signal = self.I(self.algo.transform, self.data.df.reset_index(), name='Algo signal')
+        self.signal = self.I(self.algo.transform, self.data.df.reset_index(),
+                             name='Algo signal', overlay=False)
 
     def next(self):
         if len(self.signal) < 2:
@@ -30,15 +31,19 @@ class MlStrategy(Strategy):
 
 class Test(TestCase):
     def test_fcn(self):
-        train_size = 800
+        train_size = 2000
         val_size = 800
 
-        mid_dt = datetime(year=2022, month=4, day=3)
-        train_df = load_candles_history(Client(), 'XRPUSDT', end_dt=mid_dt,
-                                        interval='1m', candles_num=train_size)
+        client = Client()
+        interval = '1h'
+        pair = 'XRPUSDT'
 
-        val_df = load_candles_history(Client(), 'XRPUSDT', start_dt=mid_dt,
-                                      interval='1m', candles_num=val_size)
+        mid_dt = datetime(year=2022, month=1, day=3)
+        train_df = load_candles_history(client=client, pair_sym=pair, start_dt=mid_dt,
+                                        interval=interval, candles_num=train_size)
+
+        val_df = load_candles_history(client=client, pair_sym=pair, end_dt=mid_dt,
+                                      interval=interval, candles_num=val_size)
 
         indicator = Indicator(change_thr=TRAIN_CHANGE_FACTOR, depth=CANDLES_DEPTH)
         indicator.fit(train_df)

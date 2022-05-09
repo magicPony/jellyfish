@@ -46,9 +46,12 @@ class Indicator:
     def fit(self, df: pd.DataFrame):
         df = add_indicators(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
-        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(),
-                                    (df.Return.rolling(2).sum() // self.change_thr).fillna(0).to_numpy(),
-                                    depth=self.depth)
+
+        features = df[indicator_cols].to_numpy()
+        target = np.clip((df.Return.rolling(2).sum() // self.change_thr).fillna(0),
+                         -1, 1)[self.depth - 1:]
+
+        dataset = IndicatorsDataset(features, target, depth=self.depth)
         self._means = dataset.means
         self._stds = dataset.stds
 
@@ -65,13 +68,17 @@ class Indicator:
         plt.plot(train_history)
         plt.show()
 
-    def transform(self, df: pd.DataFrame):
+    def transform(self, df: pd.DataFrame, suppress_neutrals=True):
         dates = df[self.date_col].tolist()
         df = add_indicators(df.copy(), self.open_col, self.high_col, self.low_col, self.close_col)
         indicator_cols = [c for c in df.columns if c.startswith('i_')]
-        dataset = IndicatorsDataset(df[indicator_cols].to_numpy(),
-                                    (df.Return.rolling(2).sum() // self.change_thr).fillna(0).to_numpy(),
-                                    depth=self.depth, means=self._means, stds=self._stds)
+
+        features = df[indicator_cols].to_numpy()
+        target = np.zeros_like(df.Return.to_numpy())[self.depth - 1:]
+
+        dataset = IndicatorsDataset(features, target, depth=self.depth,
+                                    means=self._means, stds=self._stds)
+
         loader = DataLoader(dataset=dataset, batch_size=300)
         prediction = []
         for x, _ in loader:
@@ -79,6 +86,8 @@ class Indicator:
             prediction.append(y_pred.detach().numpy().argmax(axis=-1).tolist())
 
         prediction = np.concatenate(prediction)
+        if suppress_neutrals:
+            prediction = [-1 if p < self.threshold else 1 for p in prediction]
 
         plt.plot(prediction)
         plt.title('Predictions')
@@ -90,7 +99,6 @@ class Indicator:
             while dates[index] < date:
                 index += 1
 
-            # ret[index] = signal - 1
-            ret[index] = 1 if signal > self.threshold else -1
+            ret[index] = signal
 
         return ret

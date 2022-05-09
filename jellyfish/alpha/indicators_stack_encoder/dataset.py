@@ -11,8 +11,7 @@ class IndicatorsDataset(Dataset):
             self.x += [x[i - depth:i].tolist()]
 
         self.x = np.array(self.x, dtype=np.float32)
-        self.y = y[depth - 1:].astype(np.float32)
-        self.y = np.clip(self.y, -1, 1) + 1
+        self.y = y.astype(np.float32) + 1
 
         if means is None:
             means = [self.x[:, :, i].mean() for i in range(self.x.shape[-1])]

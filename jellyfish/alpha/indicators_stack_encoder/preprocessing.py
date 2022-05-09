@@ -6,7 +6,7 @@ def add_indicators(df: pd.DataFrame, open_col, high_col, low_col, close_col):
     df['Return'] = df[close_col] / df[open_col] - 1
 
     df['i_wad'] = indicator.wad(df[high_col], df[low_col], df[close_col])
-    for period in [3, 5, 8, 15, 25]:
+    for period in [2, 3, 5, 8, 15, 25, 35]:
         df[f'i_will_r_{period}'] = indicator.will_r(df[high_col], df[low_col],
                                                     df[close_col], period)
         df[f'i_wilders_{period}'] = indicator.wilders(df[close_col], period)
