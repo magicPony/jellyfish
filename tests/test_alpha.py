@@ -30,13 +30,17 @@ class MlStrategy(Strategy):
 
 class Test(TestCase):
     def test_fcn(self):
-        end_dt = datetime(year=2022, month=4, day=3)
-        start_dt = end_dt - timedelta(days=30 * 3)
-        df = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
+        train_size = 800
+        val_size = 800
+
+        mid_dt = datetime(year=2022, month=4, day=3)
+        train_df = load_candles_history(Client(), 'XRPUSDT', end_dt=mid_dt,
+                                        interval='1m', candles_num=train_size)
+
+        val_df = load_candles_history(Client(), 'XRPUSDT', start_dt=mid_dt,
+                                      interval='1m', candles_num=val_size)
 
         indicator = Indicator(change_thr=TRAIN_CHANGE_FACTOR, depth=CANDLES_DEPTH)
-        train_df = df.iloc[:800]
-        val_df = df.iloc[800:]
         indicator.fit(train_df)
         MlStrategy.algo = indicator
 
