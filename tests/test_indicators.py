@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 import plotly.express as px
 
-from jellyfish import indicator
+from jellyfish import indicator, utils
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Client, Strategy, Backtest
 
@@ -42,6 +42,11 @@ class Test(TestCase):
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=30 * 4)
         frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
+
+        close_prices = frame.Close.to_numpy()
+        valleys = indicator.volume_profile_valleys(close_prices, frame.Volume, 50)
+        for i, price in enumerate(valleys):
+            frame[f'i_level_{i}'] = np.ones_like(close_prices) * price
 
         frame['i_zigzag'] = indicator.zigzag(frame.Close.to_numpy(), 2e-2)
         frame['i_hurst_random_walk'] = indicator.hurst(frame.Close.to_numpy())
