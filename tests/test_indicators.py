@@ -69,6 +69,7 @@ class Test(TestCase):
         frame['i_ema'] = indicator.ema(frame.Close, 20, 1.5)
         frame['i_sma'] = indicator.sma(frame.Close, 20)
         frame['i_awesome'] = indicator.awesome(frame.High, frame.Low)
+        frame['i_price_lag'] = indicator.lag(frame.Close, 1)
 
         backtest = Backtest(frame.reset_index(), DummyWithIndicators)
         backtest.run()

@@ -3,7 +3,7 @@ Candles history manager module that is responsive for candles downloading/saving
 """
 import logging
 import math
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from typing import Union
 
 import numpy as np

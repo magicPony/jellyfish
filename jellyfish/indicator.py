@@ -1,14 +1,14 @@
 """
 List of indicators for candlestick charts
 """
-import math
 from typing import Sized, Iterable
 
 import numpy as np
 import pandas as pd
+import scipy.signal as scp_signal
 import tulipy as ti
 from hurst import compute_Hc
-from scipy import stats, signal
+from scipy import stats
 from zigzag import peak_valley_pivots
 
 HURST_RANDOM_WALK = 'random_walk'
@@ -16,7 +16,7 @@ HURST_CHANGE = 'change'
 HURST_PRICE = 'price'
 
 
-def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num=None):
+def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num):
     """
     Volume profile valley points
     Args:
@@ -33,7 +33,7 @@ def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num=Non
     xr = np.linspace(*price_range, bins_num)
     kdy = kde(xr)
 
-    lows, _ = signal.find_peaks(1 - kdy)
+    lows, _ = scp_signal.find_peaks(1 - kdy)
 
     pkx = xr[lows]
 
@@ -42,43 +42,27 @@ def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num=Non
 
 def volume_profile(prices: Iterable,
                    volumes: Iterable,
-                   bins_num=None,
                    bins=None):
     """
     Volume profile horizontal indicator
     Args:
         prices: prices
         volumes: volumes
-        bins_num: number of bins
         bins: bins ranges
 
     Returns: hist volume profile
     """
-    if bins_num is not None:
-        profile = np.zeros(bins_num)
-        price_range = np.min(prices), np.max(prices)
-        bin_size = (price_range[1] - price_range[0]) / bins_num
-        for pr, vol in zip(prices, volumes):
-            bin_idx = math.floor((pr - price_range[0] - 1e-9) / bin_size)
-            profile[bin_idx] += vol
-
-        return profile
-
     profile = np.zeros(len(bins))
     assert bins is not None
     bin_idx = 0
-    for pr, vol in zip(prices, volumes):
-        while bins[bin_idx] < pr:
+    for price, vol in zip(prices, volumes):
+        while bins[bin_idx] < price:
             bin_idx += 1
 
-        while bin_idx > 0 and bins[bin_idx - 1] >= pr:
+        while bin_idx > 0 and bins[bin_idx - 1] >= price:
             bin_idx -= 1
 
-        try:
-            profile[bin_idx] += vol
-        except:
-            print(bin_idx, profile.shape)
-            break
+        profile[bin_idx] += vol
 
     return profile
 
