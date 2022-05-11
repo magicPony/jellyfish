@@ -5,13 +5,66 @@ from typing import Sized, Iterable
 
 import numpy as np
 import pandas as pd
+import scipy.signal as scp_signal
 import tulipy as ti
 from hurst import compute_Hc
+from scipy import stats
 from zigzag import peak_valley_pivots
 
 HURST_RANDOM_WALK = 'random_walk'
 HURST_CHANGE = 'change'
 HURST_PRICE = 'price'
+
+
+def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num):
+    """
+    Volume profile valley points
+    Args:
+        prices: prices data
+        volumes: volumes data
+        bins_num: number of valley (actual number would be lower!)
+
+    Returns: valley prices
+    """
+    price_range = prices.min(), prices.max()
+
+    kde_factor = 2e-2
+    kde = stats.gaussian_kde(prices, weights=volumes, bw_method=kde_factor)
+    xr = np.linspace(*price_range, bins_num)
+    kdy = kde(xr)
+
+    lows, _ = scp_signal.find_peaks(1 - kdy)
+
+    pkx = xr[lows]
+
+    return pkx
+
+
+def volume_profile(prices: Iterable,
+                   volumes: Iterable,
+                   bins=None):
+    """
+    Volume profile horizontal indicator
+    Args:
+        prices: prices
+        volumes: volumes
+        bins: bins ranges
+
+    Returns: hist volume profile
+    """
+    profile = np.zeros(len(bins))
+    assert bins is not None
+    bin_idx = 0
+    for price, vol in zip(prices, volumes):
+        while bins[bin_idx] < price:
+            bin_idx += 1
+
+        while bin_idx > 0 and bins[bin_idx - 1] >= price:
+            bin_idx -= 1
+
+        profile[bin_idx] += vol
+
+    return profile
 
 
 def _add_nans_prefix(seq: np.ndarray, target_len):
@@ -181,7 +234,7 @@ def macd(signal: Sized, short_period, long_period, signal_period):
         signal_period: signal period
     """
     res = np.zeros((3, len(signal))) * np.nan
-    res[:, long_period-1:] = ti.macd(signal, short_period, long_period, signal_period)
+    res[:, long_period - 1:] = ti.macd(signal, short_period, long_period, signal_period)
     return res
 
 
@@ -285,7 +338,7 @@ def awesome(high, low, fast_period=5, slow_period=34):
         slow_period: slow SMA period
     """
     midprice = (np.array(high) + np.array(low)) / 2
-    fast_ma = ti.sma(np.array(midprice), fast_period)[slow_period-fast_period:]
+    fast_ma = ti.sma(np.array(midprice), fast_period)[slow_period - fast_period:]
     slow_ma = ti.sma(np.array(midprice), slow_period)
     return _add_nans_prefix(fast_ma - slow_ma, len(high))
 
@@ -327,8 +380,8 @@ def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK):
     Returns: hust exponent
     """
     res = np.ones_like(signal) * 0.5
-    for i in range(window_size, len(signal)+1):
-        res[i-1], _, _ = compute_Hc(signal[i-window_size:i], simplified=True, kind=kind)
+    for i in range(window_size, len(signal) + 1):
+        res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=True, kind=kind)
 
     res[:window_size] = None
     return res
@@ -350,7 +403,7 @@ def zigzag(prices: np.ndarray, threshold):
     for start, fin in zip(pivot_idx[:-1], pivot_idx[1:]):
         p_start = prices[start]
         p_fin = prices[fin]
-        size = fin-start+1
+        size = fin - start + 1
         res[start:fin + 1] = np.arange(p_start, p_fin,
                                        (p_fin - p_start) / (fin - start + 1))[:size]
 

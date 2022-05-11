@@ -43,9 +43,9 @@ class Backtest(backtesting.Backtest):
                  commission=0.0004, # e.g. 0.04% for "maker" orders on Binance
                  margin: float = 1.,
                  trade_on_close=False):
-        super(Backtest, self).__init__(data=data, strategy=strategy, cash=cash,
-                                       commission=commission, margin=margin,
-                                       trade_on_close=trade_on_close)
+        backtesting.Backtest.__init__(self, data=data, strategy=strategy,
+                                      cash=cash,  commission=commission,
+                                      margin=margin, trade_on_close=trade_on_close)
 
     def plot(self, *, filename=None, show_legend=True, open_browser=False, **kwargs):
         """
