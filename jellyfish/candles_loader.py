@@ -110,9 +110,11 @@ def load_candles_chunk(
 def load_candles_history(
         client: RestManager,
         pair_sym: str,
-        start_dt: datetime,
-        end_dt: datetime,
-        interval: str) -> pd.DataFrame:
+        start_dt: datetime = None,
+        end_dt: datetime = None,
+        interval: str = '1h',
+        *,
+        candles_num=None) -> pd.DataFrame:
     """
     Downloads japanese candles from binance with cached data usage if possible
     :param client: binance client
@@ -122,6 +124,14 @@ def load_candles_history(
     :param interval: candle interval
     :return: candles dataframe
     """
+    assert start_dt is not None or end_dt is not None
+    if candles_num is not None:
+        duration = timedelta(milliseconds=interval_to_milliseconds(interval) * candles_num)
+        if start_dt is not None:
+            end_dt = start_dt + duration
+        else:
+            start_dt = end_dt - duration
+
     interval_ms = interval_to_milliseconds(interval)
     total_candles = (end_dt - start_dt) / timedelta(milliseconds=interval_ms)
     chunks_num = math.ceil(total_candles / CANDLES_IN_CHUNK)
