@@ -1,6 +1,7 @@
 """
 List of indicators for candlestick charts
 """
+import math
 from typing import Sized, Iterable
 
 import numpy as np
@@ -12,6 +13,39 @@ from zigzag import peak_valley_pivots
 HURST_RANDOM_WALK = 'random_walk'
 HURST_CHANGE = 'change'
 HURST_PRICE = 'price'
+
+
+def volume_profile(prices: Iterable,
+                   volumes: Iterable,
+                   bins_num=None,
+                   bins=None):
+    if bins_num is not None:
+        profile = np.zeros(bins_num)
+        price_range = np.min(prices), np.max(prices)
+        bin_size = (price_range[1] - price_range[0]) / bins_num
+        for pr, vol in zip(prices, volumes):
+            bin_idx = math.floor((pr - price_range[0] - 1e-9) / bin_size)
+            profile[bin_idx] += vol
+
+        return profile
+
+    profile = np.zeros(len(bins))
+    assert bins is not None
+    bin_idx = 0
+    for pr, vol in zip(prices, volumes):
+        while bins[bin_idx] < pr:
+            bin_idx += 1
+
+        while bin_idx > 0 and bins[bin_idx - 1] >= pr:
+            bin_idx -= 1
+
+        try:
+            profile[bin_idx] += vol
+        except:
+            print(bin_idx, profile.shape)
+            break
+
+    return profile
 
 
 def _add_nans_prefix(seq: np.ndarray, target_len):
