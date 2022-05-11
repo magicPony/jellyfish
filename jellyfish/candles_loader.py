@@ -4,6 +4,7 @@ Candles history manager module that is responsive for candles downloading/saving
 import logging
 import math
 from datetime import datetime, timedelta, date
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -80,10 +81,10 @@ def get_sample_frame():
 
 
 def load_candles_chunk(
-        client: RestManager,
+        client: Union[None, RestManager],
         pair_sym: str,
-        start_dt: date,
-        end_dt: date,
+        start_dt: datetime,
+        end_dt: datetime,
         interval: str) -> pd.DataFrame:
     """
     Loads single chunk of candles history
@@ -108,11 +109,13 @@ def load_candles_chunk(
 
 
 def load_candles_history(
-        client: RestManager,
+        client: Union[None, RestManager],
         pair_sym: str,
-        start_dt: datetime,
-        end_dt: datetime,
-        interval: str) -> pd.DataFrame:
+        start_dt: datetime = None,
+        end_dt: datetime = None,
+        interval: str = '1h',
+        *,
+        candles_num=None) -> pd.DataFrame:
     """
     Downloads japanese candles from binance with cached data usage if possible
     :param client: binance client
@@ -120,12 +123,21 @@ def load_candles_history(
     :param start_dt: start date
     :param end_dt: end date
     :param interval: candle interval
+    :param candles_num: define number of candles to load
     :return: candles dataframe
     """
+    assert start_dt is not None or end_dt is not None
+    if candles_num is not None:
+        duration = timedelta(milliseconds=interval_to_milliseconds(interval) * candles_num)
+        if start_dt is not None:
+            end_dt = start_dt + duration
+        else:
+            start_dt = end_dt - duration
+
     interval_ms = interval_to_milliseconds(interval)
     total_candles = (end_dt - start_dt) / timedelta(milliseconds=interval_ms)
     chunks_num = math.ceil(total_candles / CANDLES_IN_CHUNK)
-    dates = [(start_dt + timedelta(milliseconds=i*interval_ms*CANDLES_IN_CHUNK)).date()
+    dates = [(start_dt + timedelta(milliseconds=i*interval_ms*CANDLES_IN_CHUNK))
              for i in range(chunks_num)] + [end_dt]
 
     result = []
