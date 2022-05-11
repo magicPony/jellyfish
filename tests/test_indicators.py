@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
+import numpy as np
+import plotly.express as px
+
 from jellyfish import indicator
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Client, Strategy, Backtest
@@ -18,6 +21,23 @@ class DummyWithIndicators(Strategy):
 
 
 class Test(TestCase):
+    def test_volume_profile(self):
+        end_dt = datetime(year=2022, month=2, day=3)
+        start_dt = end_dt - timedelta(days=30 * 4)
+        frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
+
+        prices = frame.Close.to_numpy()
+        volumes = frame.Volume.to_numpy()
+
+        bins_num = 150
+        price_range = prices.min(), prices.max()
+        bin_size = (price_range[1] - price_range[0]) / bins_num
+        bins = np.arange(price_range[1], price_range[0], -bin_size)[::-1]
+
+        profile = indicator.volume_profile(prices, volumes, bins=bins)
+        fig = px.bar(x=profile, y=bins, orientation='h')
+        fig.show()
+
     def test_indicators(self):
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=30 * 4)
