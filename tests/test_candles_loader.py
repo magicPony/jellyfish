@@ -40,6 +40,16 @@ class Test(TestCase):
                              parser.parse('2021-01-09 12:22'), '1h')
         self.assertIsNotNone(get_sample_frame())
 
+    def test_define_candles_num(self):
+        candles_num = 123
+        df = load_candles_history(Client(), 'XRPUSDT', start_dt=parser.parse('2021-01-08 12:22'),
+                                  candles_num=candles_num, interval='1h')
+        self.assertEqual(len(df), candles_num)
+
+        df = load_candles_history(Client(), 'XRPUSDT', end_dt=parser.parse('2021-01-08 12:22'),
+                                  candles_num=candles_num, interval='1h')
+        self.assertEqual(len(df), candles_num)
+
     def test_load_binance_client(self):
         client = Client()
         client.ping()
