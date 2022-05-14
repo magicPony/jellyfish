@@ -10,8 +10,12 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
+            # candlestick data loading
             'rm-candles=jellyfish.cli:clean_candles_cache',
-            'load-candles=jellyfish.cli:download_candles'
+            'load-candles=jellyfish.cli:download_candles',
+
+            # orderbook crawler
+            'crawler=jellyfish.cli:crawler_cli'
         ]
     }
 )

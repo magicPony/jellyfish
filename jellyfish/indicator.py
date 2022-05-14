@@ -9,7 +9,6 @@ import scipy.signal as scp_signal
 import tulipy as ti
 from hurst import compute_Hc
 from scipy import stats
-from zigzag import peak_valley_pivots
 
 HURST_RANDOM_WALK = 'random_walk'
 HURST_CHANGE = 'change'
@@ -26,6 +25,7 @@ def volume_profile_valleys(prices: np.ndarray, volumes: np.ndarray, bins_num):
 
     Returns: valley prices
     """
+    # pylint: disable=invalid-name
     price_range = prices.min(), prices.max()
 
     kde_factor = 2e-2
@@ -384,29 +384,6 @@ def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK):
         res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=True, kind=kind)
 
     res[:window_size] = None
-    return res
-
-
-def zigzag(prices: np.ndarray, threshold):
-    """
-    ZigZag indicator
-
-    Args:
-        prices: prices list
-        threshold: relative change threshold
-
-    Returns: zigzag prices
-    """
-    pivots = peak_valley_pivots(prices, threshold, -threshold)
-    pivot_idx = [i for i, state in enumerate(pivots) if state != 0]
-    res = np.zeros_like(prices)
-    for start, fin in zip(pivot_idx[:-1], pivot_idx[1:]):
-        p_start = prices[start]
-        p_fin = prices[fin]
-        size = fin - start + 1
-        res[start:fin + 1] = np.arange(p_start, p_fin,
-                                       (p_fin - p_start) / (fin - start + 1))[:size]
-
     return res
 
 

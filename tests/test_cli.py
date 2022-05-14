@@ -1,27 +1,45 @@
-import os
+import time
 from unittest import TestCase
+
 from click.testing import CliRunner
 
 from jellyfish import cli
 
 
-#TODO: enable syscall tests
-# class TestSyscall(TestCase):
-#     def test_clean_cache(self):
-#         ret = os.system('rm-candles')
-#         self.assertEqual(ret, 0)
-#
-#     def test_download_candles(self):
-#         pair = 'BTCUSDT'
-#         from_str = '2019-09-09'
-#         interval = '4h'
-#         cmd = f'load-candles {pair} --from {from_str} -i {interval}'
-#
-#         ret = os.system(cmd)
-#         self.assertEqual(ret, 0)
+class TestCrawler(TestCase):
+    def test_start_stop(self):
+        runner = CliRunner()
+
+        pair = 'bchbtc'
+        period = '1s'
+        ttl = '10s'
+
+        result = runner.invoke(cli.crawler_cli, ['--status'])
+        self.assertEqual(result.exit_code, 0)
+        assert result.output.strip() == 'There is no active sessions.'
+
+        result = runner.invoke(cli.crawler_cli, [
+            '--start',
+            pair,
+            '--period', period,
+            '--ttl', ttl,
+            '--block'])
+        print(result.output)
+        self.assertEqual(result.exit_code, 0)
+
+        result = runner.invoke(cli.crawler_cli, [
+            '--status',
+            pair])
+        self.assertEqual(result.exit_code, 0)
+        assert result.output.strip() == f'Active sessions list: {pair.upper()}'
+
+        # TODO: CliRunner captures io streams which causes problems to service management
+        time.sleep(4)
+        result = runner.invoke(cli.crawler_cli, [pair])
+        self.assertEqual(result.exit_code, 0)
 
 
-class TestDirectCall(TestCase):
+class TestCandlesLoading(TestCase):
     def test_clean_cache(self):
         runner = CliRunner()
         result = runner.invoke(cli.clean_candles_cache)
@@ -40,6 +58,3 @@ class TestDirectCall(TestCase):
         ])
 
         self.assertEqual(result.exit_code, 0)
-
-
-

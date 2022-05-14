@@ -1,4 +1,3 @@
-cython
 scipy
 numpy>=1.22.3
 pandas==1.4.2
@@ -6,16 +5,14 @@ tqdm>=4.64.0
 setuptools
 backtesting~=0.3.3
 tulipy
-pytest-parallel
-pytest
-pytest-cov
-pylint
 unicorn-binance-rest-api
 python-dateutil~=2.8.2
 click~=8.1.2
 stocktrends
 jellyfish~=0.1
 matplotlib
-zigzag
 hurst
 plotly
+service
+requests
+pytimeparse
