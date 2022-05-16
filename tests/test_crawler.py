@@ -41,7 +41,12 @@ class TestCrawler(TestCase):
 
         self.assertGreater(len(list(out_path.iterdir())), 3)
 
-    def test_crawler_ttl(self):
+    def test_run(self):
+        sym = 'bchbtc'
+        crawler = Crawler(sym, ttl=timedelta(seconds=5))
+        crawler.run()
+
+    def test_ttl(self):
         sym = 'bchbtc'
         ttl_secs = 3
 
