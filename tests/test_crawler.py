@@ -44,7 +44,8 @@ class TestCrawler(TestCase):
     def test_run(self):
         sym = 'bchbtc'
         crawler = Crawler(sym, ttl=timedelta(seconds=5))
-        crawler.run()
+        with pytest.raises(TypeError):
+            crawler.run()
 
     def test_ttl(self):
         sym = 'bchbtc'
