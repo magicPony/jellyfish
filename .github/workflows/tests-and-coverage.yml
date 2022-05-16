@@ -14,7 +14,7 @@ jobs:
         run: pip install pytest-parallel pytest-cov
 
       - name: Generate coverage report
-        run: pytest -s -cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x
+        run: pytest -s --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x --cov=jellyfish tests
       - uses: codecov/codecov-action@v2
         with:
           files: /home/runner/coverage.xml
