@@ -53,7 +53,7 @@ class TestCrawler(TestCase):
 
         # TODO: CliRunner captures io streams which causes problems to service management
         time.sleep(4)
-        result = runner.invoke(cli.crawler_cli, [pair])
+        result = runner.invoke(cli.crawler_cli, ['--stop', pair])
         self.assertEqual(result.exit_code, 0)
 
 
