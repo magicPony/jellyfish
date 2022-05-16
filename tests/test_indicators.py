@@ -48,7 +48,6 @@ class Test(TestCase):
         for i, price in enumerate(valleys):
             frame[f'i_level_{i}'] = np.ones_like(close_prices) * price
 
-        frame['i_zigzag'] = indicator.zigzag(frame.Close.to_numpy(), 2e-2)
         frame['i_hurst_random_walk'] = indicator.hurst(frame.Close.to_numpy())
         frame['i_hurst_change'] = indicator.hurst(frame.Close.to_numpy(), 100,
                                                   indicator.HURST_CHANGE)

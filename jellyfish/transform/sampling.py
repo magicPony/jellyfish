@@ -4,7 +4,6 @@ List of possible sampling technics
 import pandas as pd
 import stocktrends
 from tqdm.auto import trange
-from zigzag import peak_valley_pivots
 
 import jellyfish.transform.sampling_triggers as triggers
 from jellyfish import utils
@@ -90,32 +89,6 @@ def line_break_bars(ohlc: pd.DataFrame,
     """
     condition = triggers.line_break(close_col, lookback)
     return _generic_sampling(ohlc, condition, agg)
-
-
-def zigzag(ohlc: pd.DataFrame,
-           threshold,
-           prices_col=CLOSE,
-           agg: dict = None):
-    """
-    Sample chart as ZigZag indicator sampled
-    Args:
-        ohlc: dataframe with candles
-        threshold: zigzag threshold
-        prices_col: prices column name
-        agg: candle sampling aggregation info
-
-    Returns: downsampled data
-    """
-    if agg is None:
-        agg = DEFAULT_SAMPLING_AGG
-
-    pivots = peak_valley_pivots(ohlc[prices_col].to_numpy(), threshold, -threshold)
-    pivot_idx = [i for i, state in enumerate(pivots) if state != 0]
-    data = []
-    for start, fin in zip(pivot_idx[:-1], pivot_idx[1:]):
-        data.append(utils.collapse_candle(ohlc[start:fin], agg))
-
-    return pd.DataFrame(data, columns=agg.keys())
 
 
 def tick_bars(ohlc: pd.DataFrame,

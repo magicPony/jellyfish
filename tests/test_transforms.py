@@ -61,11 +61,6 @@ class TestSampling(TestCase):
         frame = transform.sampling.tick_imbalance(frame.reset_index(), 7)
         utils.plot_ohlc(frame)
 
-    def test_zigzag(self):
-        frame = self.frame
-        frame = transform.sampling.zigzag(frame.reset_index(), 3e-2)
-        utils.plot_ohlc(frame)
-
     def test_compose(self):
         t = transform.compose([
             (transform.sampling.line_break_bars, 4),

@@ -7,12 +7,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-#      (TODO): fix zigzag lib dependency
-      - name: Install zigzag library dependencies
-        run: pip install numpy cython
-
       - name: Install package
         run: pip install .
+
+      - name: Install pylint
+        run: pip install pylint
 
       - name: Run linter
         run: pylint jellyfish

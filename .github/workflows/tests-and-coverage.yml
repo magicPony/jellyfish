@@ -7,15 +7,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-#      (TODO): fix zigzag lib dependency
-      - name: Install zigzag library dependencies
-        run: pip install numpy cython
-
       - name: Install package
         run: pip install .
 
+      - name: Install pytest
+        run: pip install pytest-parallel pytest-cov
+
       - name: Generate coverage report
-        run: pytest --cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x
+        run: pytest -s -cov . --cov-report xml:/home/runner/coverage.xml --cov-fail-under=92 --workers auto -x
       - uses: codecov/codecov-action@v2
         with:
           files: /home/runner/coverage.xml
