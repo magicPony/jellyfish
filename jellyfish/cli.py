@@ -1,7 +1,6 @@
 """
 Command line interface communication
 """
-import logging
 from datetime import datetime, timedelta
 
 import click
@@ -24,18 +23,22 @@ from jellyfish.crawler import Crawler
 @click.option('--ttl', default='720h')  # e.g. 720 hours(roughly one month)
 @click.option('--block', is_flag=True)
 def crawler_cli(pairs_list, start, status, stop, period, ttl, block):
-    if start:
-        try:
-            ttl = timedelta(seconds=timeparse(ttl))
-        except TypeError:
-            logging.fatal('Unable to parse ttl with value=`%s`', ttl)
-            return
+    """
+    Crawler CLI extension
+    Args:
+        pairs_list: trading pairs
+        start: start flag
+        status: status flag
+        stop: stop flag
+        period: poll update period (relevant for starting service)
+        ttl: service time to live (relevant for starting service)
+        block: block flag (relevant for starting service)
 
-        try:
-            period = timedelta(seconds=timeparse(period))
-        except TypeError:
-            logging.fatal('Unable to parse period with value=`%s`', period)
-            return
+    Returns: operation status
+    """
+    if start:
+        ttl = timedelta(seconds=timeparse(ttl))
+        period = timedelta(seconds=timeparse(period))
 
         for pair in pairs_list:
             Crawler(pair, period, ttl).start(block=block)
@@ -59,8 +62,10 @@ def crawler_cli(pairs_list, start, status, stop, period, ttl, block):
             Crawler.stop_all()
 
     else:
-        logging.error('No action argument provided. '
-                      'Possible actions: start|status|stop')
+        raise ValueError('No action argument provided. '
+                         'Possible actions: start|status|stop')
+
+    return 0
 
 
 @click.command()

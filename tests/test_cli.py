@@ -7,6 +7,25 @@ from jellyfish import cli
 
 
 class TestCrawler(TestCase):
+    def test_wrong_argument(self):
+        runner = CliRunner()
+
+        pair = 'bchbtc'
+
+        result = runner.invoke(cli.crawler_cli, [
+            '--start',
+            pair,
+            '--ttl', '1qq',
+            '--block'])
+        self.assertNotEqual(result.exit_code, 0)
+
+        result = runner.invoke(cli.crawler_cli, [
+            '--start',
+            pair,
+            '--period', '1q',
+            '--block'])
+        self.assertNotEqual(result.exit_code, 0)
+
     def test_start_stop(self):
         runner = CliRunner()
 
@@ -24,7 +43,6 @@ class TestCrawler(TestCase):
             '--period', period,
             '--ttl', ttl,
             '--block'])
-        print(result.output)
         self.assertEqual(result.exit_code, 0)
 
         result = runner.invoke(cli.crawler_cli, [
