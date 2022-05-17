@@ -1,7 +1,6 @@
 """
 Backtesting.py Backtest module wrapper
 """
-import logging
 from datetime import timedelta
 
 import backtesting
@@ -39,12 +38,12 @@ class Backtest(backtesting.Backtest):
     def __init__(self, data: pd.DataFrame,
                  strategy,
                  *,
-                 cash: float = 10_000,
-                 commission=0.0004, # e.g. 0.04% for "maker" orders on Binance
+                 cash: float = 1_000_000,
+                 commission=0.0004,  # e.g. 0.04% for "maker" orders on Binance
                  margin: float = 1.,
                  trade_on_close=False):
         backtesting.Backtest.__init__(self, data=data, strategy=strategy,
-                                      cash=cash,  commission=commission,
+                                      cash=cash, commission=commission,
                                       margin=margin, trade_on_close=trade_on_close)
 
     def plot(self, *, filename=None, show_legend=True, open_browser=False, **kwargs):
@@ -62,7 +61,7 @@ class Backtest(backtesting.Backtest):
 
         assert len(kwargs) == 0
         backtesting.Backtest.plot(self, filename=filename, show_legend=show_legend,
-                                  open_browser=open_browser)
+                                  open_browser=open_browser, superimpose=False)
 
     def run(self, **kwargs) -> pd.Series:
         """
@@ -76,12 +75,12 @@ class Backtest(backtesting.Backtest):
 
         tpy = _get_ticks_per_year(self._data)
         rf_rate = 0  # TODO: replace risk-free rate with an appropriate value
-        try:
+        if returns.std() != 0:
             stats['Sharpe Ratio'] = (returns.mean() * (tpy ** 0.5) - rf_rate) / returns.std()
             stats['Calmar Ratio'] = returns.mean() * tpy / drawdown.max()
-            stats['Sortino Ratio'] = \
-                (returns.mean() * np.sqrt(tpy) - rf_rate) / returns[returns < 0].std()
-        except TypeError:
-            logging.warning('Unable to calculate Sharpe/Calmar/Sortino ratio')
+
+        if returns[returns < 0].std() != 0:
+            stats['Sortino Ratio'] = (returns.mean() * np.sqrt(tpy) - rf_rate) \
+                                     / returns[returns < 0].std()
 
         return stats

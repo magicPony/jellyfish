@@ -16,3 +16,4 @@ plotly
 service
 requests
 pytimeparse
+psutil

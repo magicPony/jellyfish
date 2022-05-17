@@ -16,7 +16,7 @@ def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True):
         open_browser: open html report in browser
         show_legend: show equity/pnl legend
     """
-    backtest = Backtest(ohlc, strategy=Strategy, cash=10_000, commission=.002)
+    backtest = Backtest(ohlc, strategy=Strategy)
     backtest.run()
     backtest.plot(open_browser=open_browser, show_legend=show_legend)
 

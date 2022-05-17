@@ -66,8 +66,9 @@ def read_candles_frame(frame_path):
     """
     Read dataframe with candles
     """
-    return pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
-
+    frame = pd.read_csv(frame_path, index_col='Date', parse_dates=True, infer_datetime_format=True)
+    frame.index.names = ['Date']
+    return frame
 
 def get_sample_frame():
     """

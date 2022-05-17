@@ -6,6 +6,7 @@ import time
 from datetime import timedelta, datetime
 from pathlib import Path
 
+import psutil
 import requests
 
 from jellyfish.constants import ORDERBOOK_PATH
@@ -62,9 +63,14 @@ class Crawler(Daemon):
         Returns: active sessions list
         """
         active_sessions = []
-        for pidfile in PID_DIR.glob(f'*{JELLY_CRAWLER}*'):
-            pair = pidfile.name.replace(f'{JELLY_CRAWLER}_', '').split('.', maxsplit=1)[0]
-            active_sessions.append(pair)
+        for pidfile_path in PID_DIR.glob(f'*{JELLY_CRAWLER}*'):
+            proc_name = pidfile_path.name.split('.', maxsplit=1)[0]
+            with pidfile_path.open() as pidfile:
+                pid = int(pidfile.read())
+
+            if psutil.Process(pid).name() == proc_name:
+                pair = proc_name.replace(f'{JELLY_CRAWLER}_', '')
+                active_sessions.append(pair)
 
         return active_sessions
 
