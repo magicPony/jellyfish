@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 import plotly.express as px
 
-from jellyfish import indicator, utils
+from jellyfish import indicator
 from jellyfish.candles_loader import load_candles_history
 from jellyfish.core import Client, Strategy, Backtest
 
@@ -18,6 +18,12 @@ class DummyWithIndicators(Strategy):
         self.I(indicator.fisher, self.data.High, self.data.Low)
         self.I(indicator.bollinger_bands, self.data.df, 10, 1.5)
         self.I(indicator.macd, self.data.Close, 12, 26, 9)
+
+        for lvl in indicator.volume_profile_valleys(self.data.Close, self.data.Volume, 50):
+            self.plot_hline(lvl, name='Volume Profile', color='blue')
+
+        for lvl in indicator.fib_retracement(self.data.High, self.data.Low):
+            self.plot_hline(lvl, name='Fib', color='orange')
 
 
 class Test(TestCase):
@@ -43,15 +49,9 @@ class Test(TestCase):
         start_dt = end_dt - timedelta(days=30 * 4)
         frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
 
-        close_prices = frame.Close.to_numpy()
-        valleys = indicator.volume_profile_valleys(close_prices, frame.Volume, 50)
-        for i, price in enumerate(valleys):
-            frame[f'i_level_{i}'] = np.ones_like(close_prices) * price
-
-        frame['i_hurst_random_walk'] = indicator.hurst(frame.Close.to_numpy())
-        frame['i_hurst_change'] = indicator.hurst(frame.Close.to_numpy(), 100,
-                                                  indicator.HURST_CHANGE)
-        frame['i_hurst_price'] = indicator.hurst(frame.Close.to_numpy(), 200, indicator.HURST_PRICE)
+        frame['i_hurst_random_walk'] = indicator.hurst(frame.Close)
+        frame['i_hurst_change'] = indicator.hurst(frame.Close, 100, indicator.HURST_CHANGE)
+        frame['i_hurst_price'] = indicator.hurst(frame.Close, 200, indicator.HURST_PRICE)
         frame['i_wad'] = indicator.wad(frame.High, frame.Low, frame.Close)
         frame['i_will_r'] = indicator.will_r(frame.High, frame.Low, frame.Close)
         frame['i_wilders_fast'] = indicator.wilders(frame.Close, 5)
@@ -69,6 +69,8 @@ class Test(TestCase):
         frame['i_sma'] = indicator.sma(frame.Close, 20)
         frame['i_awesome'] = indicator.awesome(frame.High, frame.Low)
         frame['i_price_lag'] = indicator.lag(frame.Close, 1)
+        frame['i_mfi'] = indicator.mfi(frame.High, frame.Low, frame.Close, frame.Volume, 25)
+        frame['i_marketfi'] = indicator.marketfi(frame.High, frame.Low, frame.Volume)
 
         backtest = Backtest(frame.reset_index(), DummyWithIndicators)
         backtest.run()

@@ -93,7 +93,7 @@ def marketfi(high, low, volume):
 
     Returns: index signal
     """
-    return _add_nans_prefix(ti.marketfi(high, low, volume), len(high))
+    return _add_nans_prefix(ti.marketfi(np.array(high), np.array(low), np.array(volume)), len(high))
 
 
 def mfi(high, low, close, volume, period):
@@ -108,7 +108,8 @@ def mfi(high, low, close, volume, period):
 
     Returns: mfi signal
     """
-    return _add_nans_prefix(ti.mfi(high, low, close, volume, period), len(high))
+    return _add_nans_prefix(ti.mfi(np.array(high), np.array(low), np.array(close), np.array(volume),
+                                   period), len(high))
 
 
 def _add_nans_prefix(seq: np.ndarray, target_len):
@@ -278,7 +279,7 @@ def macd(signal: Sized, short_period, long_period, signal_period):
         signal_period: signal period
     """
     res = np.zeros((3, len(signal))) * np.nan
-    res[:, long_period - 1:] = ti.macd(signal, short_period, long_period, signal_period)
+    res[:, long_period - 1:] = ti.macd(np.array(signal), short_period, long_period, signal_period)
     return res
 
 
