@@ -67,6 +67,51 @@ def volume_profile(prices: Iterable,
     return profile
 
 
+def fib_retracement(high: np.ndarray, low: np.ndarray):
+    ratios = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1]
+    max_level = high.max()
+    min_level = low.min()
+    is_up_direction = low.argmin() < high.argmax()
+
+    levels = []
+    for ratio in ratios:
+        if is_up_direction:  # Uptrend
+            levels.append(max_level - (max_level - min_level) * ratio)
+        else:  # Downtrend
+            levels.append(min_level + (max_level - min_level) * ratio)
+
+    return levels
+
+
+def marketfi(high, low, volume):
+    """
+    Market Facilitation Index
+    Args:
+        high: high prices
+        low: low prices
+        volume: volumes
+
+    Returns: index signal
+    """
+    return _add_nans_prefix(ti.marketfi(np.array(high), np.array(low), np.array(volume)), len(high))
+
+
+def mfi(high, low, close, volume, period):
+    """
+    Money flow index
+    Args:
+        high: high prices
+        low: low prices
+        close: close prices
+        volume: volumes
+        period: period
+
+    Returns: mfi signal
+    """
+    return _add_nans_prefix(ti.mfi(np.array(high), np.array(low), np.array(close), np.array(volume),
+                                   period), len(high))
+
+
 def _add_nans_prefix(seq: np.ndarray, target_len):
     """
     Add prefix with nan's at the beginning of the sequence
@@ -234,7 +279,7 @@ def macd(signal: Sized, short_period, long_period, signal_period):
         signal_period: signal period
     """
     res = np.zeros((3, len(signal))) * np.nan
-    res[:, long_period - 1:] = ti.macd(signal, short_period, long_period, signal_period)
+    res[:, long_period - 1:] = ti.macd(np.array(signal), short_period, long_period, signal_period)
     return res
 
 
