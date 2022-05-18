@@ -11,22 +11,55 @@ from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TR
                                  QUOTE_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME,
                                  TAKER_BUY_ASSET_VOLUME, ORDERBOOK)
 
+
+def _last(sequence):
+    """
+    Get last non null element from the list
+    Args:
+        sequence: values sequence
+
+    Returns: last non null element
+    """
+    sequence = list(sequence)
+    i = len(sequence) - 1
+    while i > 0 and sequence[i] is None:
+        i -= 1
+
+    return sequence[i]
+
+
+def _first(sequence):
+    """
+    Get first non null element from the list
+    Args:
+        sequence: values sequence
+
+    Returns: first non null element from the sequence
+    """
+    sequence = list(sequence)
+    i = 0
+    while i + 1 < len(sequence) and sequence[i] is None:
+        i += 1
+
+    return sequence[i]
+
+
 DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
-    OPEN: utils.first,
+    OPEN: _first,
     HIGH: 'max',
     LOW: 'min',
-    CLOSE: utils.last,
+    CLOSE: _last,
     VOLUME: 'sum',
     NUM_OF_TRADES: 'sum',
     QUOTE_ASSET_VOLUME: 'sum',
     TAKER_BUY_ASSET_VOLUME: 'sum',
     TAKER_SELL_ASSET_VOLUME: 'sum',
-    ORDERBOOK: utils.last
+    ORDERBOOK: _last
 }
 
 DEFAULT_SAMPLING_AGG = {
     **DEFAULT_SAMPLING_AGG_WITHOUT_IDX,
-    DATE: utils.last
+    DATE: _last
 }
 
 
@@ -43,6 +76,8 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
     if agg is None:
         agg = DEFAULT_SAMPLING_AGG
 
+    agg = {k: v for k, v in agg.items() if k in ohlc.columns}
+
     data = []
     i = 0
     progress = trange(len(ohlc))
@@ -55,7 +90,7 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
         progress.update(j - i)
         i = j
 
-    return pd.DataFrame(data, columns=[k for k in agg.keys() if k in ohlc.columns])
+    return pd.DataFrame(data, columns=agg.keys())
 
 
 def tick_imbalance(ohlc: pd.DataFrame,

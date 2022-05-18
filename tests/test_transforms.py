@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from jellyfish import transform, utils
+from jellyfish.transform import sampling
 from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Client
 
@@ -33,45 +34,45 @@ class TestSampling(TestCase):
 
     def test_tick_bars(self):
         frame = self.frame
-        frame = transform.sampling.tick_bars(frame.reset_index(), 3e5)
+        frame = sampling.tick_bars(frame.reset_index(), 3e5)
         utils.plot_ohlc(frame.reset_index())
 
     def test_line_break_bars(self):
         frame = self.frame
-        frame = transform.sampling.line_break_bars(frame.reset_index(), 10)
+        frame = sampling.line_break_bars(frame.reset_index(), 10)
         utils.plot_ohlc(frame.reset_index())
 
     def test_volume_bars(self):
         frame = self.frame
-        frame = transform.sampling.volume_bars(frame.reset_index(), 2e3)
+        frame = sampling.volume_bars(frame.reset_index(), 2e3)
         utils.plot_ohlc(frame.reset_index())
 
     def test_renko(self):
         frame = self.frame
-        frame = transform.sampling.renko_bars(frame.reset_index(), 100)
+        frame = sampling.renko_bars(frame.reset_index(), 100)
         utils.plot_ohlc(frame)
 
     def test_dollars(self):
         frame = self.frame
-        frame = transform.sampling.dollar_bars(frame.reset_index(), 1e8)
+        frame = sampling.dollar_bars(frame.reset_index(), 1e8)
         utils.plot_ohlc(frame)
 
     def test_tick_imbalance(self):
         frame = self.frame
-        frame = transform.sampling.tick_imbalance(frame.reset_index(), 7)
+        frame = sampling.tick_imbalance(frame.reset_index(), 7)
         utils.plot_ohlc(frame)
 
     def test_compose(self):
         t = transform.compose([
-            (transform.sampling.line_break_bars, 4),
-            (transform.sampling.volume_bars, 1.5e3),
-            (transform.sampling.tick_imbalance, 2),
+            (sampling.line_break_bars, 4),
+            (sampling.volume_bars, 1.5e3),
+            (sampling.tick_imbalance, 2),
             transform.to_heiken_ashi,
             transform.to_log_prices,
-            (transform.sampling.tick_imbalance, 2),
-            (transform.sampling.volume_bars, 2e4),
-            (transform.sampling.line_break_bars, 2),
-            (transform.sampling.renko_bars, 1e-2)
+            (sampling.tick_imbalance, 2),
+            (sampling.volume_bars, 2e4),
+            (sampling.line_break_bars, 2),
+            (sampling.renko_bars, 1e-2)
         ])
 
         frame = self.frame
