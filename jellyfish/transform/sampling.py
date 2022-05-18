@@ -6,26 +6,9 @@ import stocktrends
 from tqdm.auto import trange
 
 import jellyfish.transform._sampling_triggers as triggers
-from jellyfish import utils
 from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TRADES,
                                  QUOTE_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME,
                                  TAKER_BUY_ASSET_VOLUME, ORDERBOOK)
-
-
-def _last(sequence):
-    """
-    Get last non null element from the list
-    Args:
-        sequence: values sequence
-
-    Returns: last non null element
-    """
-    sequence = list(sequence)
-    i = len(sequence) - 1
-    while i > 0 and sequence[i] is None:
-        i -= 1
-
-    return sequence[i]
 
 
 def _first(sequence):
@@ -42,6 +25,17 @@ def _first(sequence):
         i += 1
 
     return sequence[i]
+
+
+def _last(sequence):
+    """
+    Get last non null element from the list
+    Args:
+        sequence: values sequence
+
+    Returns: last non null element
+    """
+    return _first(list(sequence)[::-1])
 
 
 DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
@@ -86,11 +80,11 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
         while j < len(ohlc) and not condition_cb(ohlc[i:j]):
             j += 1
 
-        data.append(utils.collapse_candle(ohlc[i:j], agg))
+        data.append(ohlc[i:j].agg(agg))
         progress.update(j - i)
         i = j
 
-    return pd.DataFrame(data, columns=agg.keys())
+    return pd.DataFrame(data)
 
 
 def tick_imbalance(ohlc: pd.DataFrame,

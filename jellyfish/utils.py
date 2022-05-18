@@ -26,15 +26,3 @@ def disable_warnings():
     Disables all warnings
     """
     warnings.filterwarnings("ignore")
-
-
-def collapse_candle(data: pd.DataFrame, agg: dict):
-    """
-    Downsample OHLC candle
-    Args:
-        data: OHLC frame
-        agg: aggregation dict
-
-    Returns: frame with aggregated result
-    """
-    return [data[col].agg(func) for col, func in agg.items()]
