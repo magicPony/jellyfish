@@ -1,15 +1,29 @@
+from datetime import datetime, timedelta
 from unittest import TestCase
 
-from datetime import timedelta
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
-from jellyfish.constants import CANDLES_HISTORY_PATH
-from jellyfish.candles_loader import load_candles_history, clean_candles_cache, get_sample_frame
+from jellyfish.constants import CANDLES_HISTORY_PATH, ORDERBOOK
 from jellyfish.core import Client
+from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
+                                      get_sample_frame, load_orderbook_history)
 
 
-class Test(TestCase):
+class TestOrderbookLoader(TestCase):
+    def test_load(self):
+        pair = 'btcusdt'
+        start_dt = datetime(year=2021, month=6, day=16)
+        end_dt = start_dt + timedelta(days=1)
+
+        orderbook = load_orderbook_history(pair, start_dt=start_dt, end_dt=end_dt)[ORDERBOOK]
+        candles = load_candles_history(Client(), pair, start_dt, end_dt, interval='1m')
+
+        df = candles.join(orderbook)
+        print(df.head())
+
+
+class TestCandlesLoader(TestCase):
     def load_for_interval(self, interval, window_size: timedelta):
         client = Client()
         pair = 'XRPUSDT'

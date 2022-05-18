@@ -4,7 +4,8 @@ from unittest import TestCase
 import pandas as pd
 
 from jellyfish import transform, indicator
-from jellyfish.candles_loader import load_candles_history
+from jellyfish.transform import sampling
+from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Backtest, Client
 from jellyfish.core.strategy import SmaCross, BuyAndHold
 
@@ -41,7 +42,7 @@ class Test(TestCase):
         self.assertGreater(buy_n_hold_stats['# Trades'], 0)
 
         t = transform.compose([
-            (transform.sampling.tick_imbalance, 10),
+            (sampling.tick_imbalance, 10),
         ])
         frame = t(frame.reset_index())
 

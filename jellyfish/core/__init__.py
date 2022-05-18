@@ -1,6 +1,6 @@
 """
 Backbone components wrappers for appropriate modules in backtesting.py package
 """
-from jellyfish.core.backtest import Backtest
-from jellyfish.core.strategy import Strategy
-from jellyfish.core.client import Client
+from jellyfish.core._backtest import Backtest
+from jellyfish.core.strategy import Strategy, BuyAndHold, SmaCross
+from jellyfish.core._client import Client
