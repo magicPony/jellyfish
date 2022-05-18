@@ -22,7 +22,7 @@ class Strategy(backtesting.Strategy):
     def next(self):
         pass
 
-    def plot_hline(self, price, force=False, name=None, color=None):
+    def plot_hline(self, price, force=False, name=None, color=None, scatter=False):
         """
         Plot vertical line
         Args:
@@ -30,11 +30,12 @@ class Strategy(backtesting.Strategy):
             force: force plot when y level is out of price range
             name: line name
             color: line plot color
+            scatter: plot circles instead of a connected line segment
 
         """
         to_hline = lambda lvl: np.ones_like(self.data.Close) * lvl
         if force or self.data.Low.min() <= price <= self.data.High.max():
-            self.I(to_hline, price, name=name, color=color)
+            self.I(to_hline, price, name=name, color=color, overlay=True, scatter=scatter)
 
     def mark_as_indicator(self, column_name, overlay=None, name=None, scatter=False):
         """

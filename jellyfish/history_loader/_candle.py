@@ -11,10 +11,11 @@ import pandas as pd
 from tqdm.auto import tqdm
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
-from jellyfish.core import Client
 from jellyfish.constants import (CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME,
                                  QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME,
                                  TAKER_SELL_ASSET_VOLUME)
+from jellyfish.core import Client
+from jellyfish.history_loader._orderbook import load_orderbook_history
 
 CANDLES_IN_CHUNK = 1000
 
@@ -83,7 +84,7 @@ def get_sample_frame():
     return None
 
 
-def load_candles_chunk(
+def _load_candles_chunk(
         client: Union[None, Client],
         pair_sym: str,
         start_dt: datetime,
@@ -118,7 +119,8 @@ def load_candles_history(
         end_dt: datetime = None,
         interval: str = '1h',
         *,
-        candles_num=None) -> pd.DataFrame:
+        candles_num=None,
+        read_orderbook=False) -> pd.DataFrame:
     """
     Downloads japanese candles from binance with cached data usage if possible
     :param client: binance client
@@ -127,6 +129,7 @@ def load_candles_history(
     :param end_dt: end date
     :param interval: candle interval
     :param candles_num: define number of candles to load
+    :param read_orderbook: read orderbook data flag
     :return: candles dataframe
     """
     assert start_dt is not None or end_dt is not None
@@ -145,9 +148,13 @@ def load_candles_history(
 
     result = []
     for chunk_start_dt, chunk_end_dt in tqdm(list(zip(dates[:-1], dates[1:]))):
-        candles = load_candles_chunk(client, pair_sym.upper(), chunk_start_dt, chunk_end_dt,
-                                     interval)
+        candles = _load_candles_chunk(client, pair_sym.upper(), chunk_start_dt, chunk_end_dt,
+                                      interval)
         result.append(candles)
 
-    result = pd.concat(result)
-    return result.sort_index().sort_index(axis=1)
+    result = pd.concat(result).sort_index().sort_index(axis=1)
+    if read_orderbook:
+        orderbook = load_orderbook_history(pair_sym, result.index)
+        result = result.join(orderbook)
+
+    return result
