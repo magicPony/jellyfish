@@ -26,37 +26,3 @@ def disable_warnings():
     Disables all warnings
     """
     warnings.filterwarnings("ignore")
-
-
-def last(sequence):
-    """
-    Get last element from the sequence
-    Args:
-        sequence: subscriptable sequence
-
-    Returns: last element from the sequence
-    """
-    return list(sequence)[len(sequence) - 1]
-
-
-def first(sequence):
-    """
-    Get first element from the sequence
-    Args:
-        sequence: subscriptable sequence
-
-    Returns: first element from the sequence
-    """
-    return list(sequence)[0]
-
-
-def collapse_candle(data: pd.DataFrame, agg: dict):
-    """
-    Downsample OHLC candle
-    Args:
-        data: OHLC frame
-        agg: aggregation dict
-
-    Returns: frame with aggregated result
-    """
-    return [data[col].agg(func) for col, func in agg.items() if col in data.columns]
