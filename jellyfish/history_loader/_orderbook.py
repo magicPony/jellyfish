@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List
 import pandas as pd
 from datetime import datetime
@@ -14,6 +15,13 @@ def load_orderbook_history(pair_sym: str,
                            start_dt: datetime = None,
                            end_dt: datetime = None):
     base_path = ORDERBOOK_PATH / pair_sym.upper()
+    if not base_path.exists():
+        logging.error('No orderbook data for symbol %s', pair_sym)
+        return pd.DataFrame({
+            DATE: [],
+            ORDERBOOK: []
+        })
+
     if dates is None:
         timestamps = [int(path.name.split('.')[0]) for path in sorted(base_path.iterdir())]
         timestamps = [ts for ts in timestamps if start_dt.timestamp() <= ts <= end_dt.timestamp()]
