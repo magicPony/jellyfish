@@ -1,3 +1,6 @@
+"""
+Orderbook history data loading module
+"""
 import json
 import logging
 from datetime import datetime
@@ -14,6 +17,16 @@ def load_orderbook_history(pair_sym: str,
                            dates: List[datetime] = None,
                            start_dt: datetime = None,
                            end_dt: datetime = None):
+    """
+    Load orderbook data
+    Args:
+        pair_sym: trading pair
+        dates: dates to load data
+        start_dt: history start date
+        end_dt: history last date
+
+    Returns: dataframe with orderbook data
+    """
     base_path = ORDERBOOK_PATH / pair_sym.upper()
     if not base_path.exists():
         logging.error('No orderbook data for symbol %s', pair_sym)
@@ -29,8 +42,6 @@ def load_orderbook_history(pair_sym: str,
         timestamps = [int(dt.timestamp()) for dt in dates]
 
     orderbook = []
-    print(len(timestamps))
-    timestamps = timestamps
     for ts in tqdm(timestamps):
         depth = None
         depth_path = base_path / f'{ts}.json'
@@ -44,9 +55,10 @@ def load_orderbook_history(pair_sym: str,
 
         orderbook.append(depth)
 
-    df = pd.DataFrame({
+    frame = pd.DataFrame({
         DATE: [datetime.fromtimestamp(ts) for ts in timestamps],
         ORDERBOOK: orderbook
     })
 
-    return df.set_index('Date')
+    frame.set_index(DATE, inplace=True)
+    return frame

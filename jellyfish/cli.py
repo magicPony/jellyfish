@@ -24,6 +24,17 @@ from jellyfish.crawler import Crawler
 @click.option('--ttl', default='720h')  # e.g. 720 hours(roughly one month)
 @click.option('--block', is_flag=True)
 def crawler_cli(pairs_list, start, status, stop, period, ttl, block):
+    """
+    Orderbook crawler CLI call command
+    Args:
+        pairs_list: trading pairs list
+        start: perform start action flag
+        status: print status action falg
+        stop: perform stop action flag
+        period: polling period
+        ttl: time to live
+        block: is operation blocking flag
+    """
     if start:
         try:
             ttl = timedelta(seconds=timeparse(ttl))

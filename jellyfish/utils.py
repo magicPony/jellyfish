@@ -59,4 +59,4 @@ def collapse_candle(data: pd.DataFrame, agg: dict):
 
     Returns: frame with aggregated result
     """
-    return [data[col].agg(func) for col, func in agg.items()]
+    return [data[col].agg(func) for col, func in agg.items() if col in data.columns]

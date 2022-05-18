@@ -68,6 +68,14 @@ def volume_profile(prices: Iterable,
 
 
 def fib_retracement(high: np.ndarray, low: np.ndarray):
+    """
+    Fibonacci retracement levels
+    Args:
+        high: high prices
+        low: low prices
+
+    Returns: levels array
+    """
     ratios = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1]
     max_level = high.max()
     min_level = low.min()

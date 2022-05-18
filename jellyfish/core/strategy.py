@@ -22,19 +22,19 @@ class Strategy(backtesting.Strategy):
     def next(self):
         pass
 
-    def plot_hline(self, y, force=False, name=None, color=None):
+    def plot_hline(self, price, force=False, name=None, color=None):
         """
         Plot vertical line
         Args:
-            y: price level
+            price: price level
             force: force plot when y level is out of price range
             name: line name
             color: line plot color
 
         """
         to_hline = lambda lvl: np.ones_like(self.data.Close) * lvl
-        if force or self.data.Low.min() <= y <= self.data.High.max():
-            self.I(to_hline, y, name=name, color=color)
+        if force or self.data.Low.min() <= price <= self.data.High.max():
+            self.I(to_hline, price, name=name, color=color)
 
     def mark_as_indicator(self, column_name, overlay=None, name=None, scatter=False):
         """
