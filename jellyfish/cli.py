@@ -8,10 +8,9 @@ import click
 from dateutil import parser
 from pytimeparse.timeparse import timeparse
 
-from jellyfish import utils
+from jellyfish import utils, history_loader
 from jellyfish.core import Client
 from jellyfish.crawler import Crawler
-from jellyfish.history_loader import load_candles_history, clean_candles_cache
 
 
 @click.command(context_settings={
@@ -70,7 +69,7 @@ def clean_candles_cache():
     Cleans candlestick cache directory
     """
     utils.disable_warnings()
-    clean_candles_cache()
+    history_loader.clean_candles_cache()
 
 
 @click.command()
@@ -89,7 +88,7 @@ def download_candles(pair, from_date, to_date, interval):
 
     """
     utils.disable_warnings()
-    load_candles_history(
+    history_loader.load_candles_history(
         client=Client(),
         pair_sym=pair,
         start_dt=parser.parse(from_date),
