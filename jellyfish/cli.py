@@ -8,7 +8,7 @@ import click
 from dateutil import parser
 from pytimeparse.timeparse import timeparse
 
-from jellyfish import candles_loader, utils
+from jellyfish import utils, history_loader
 from jellyfish.core import Client
 from jellyfish.crawler import Crawler
 
@@ -24,6 +24,17 @@ from jellyfish.crawler import Crawler
 @click.option('--ttl', default='720h')  # e.g. 720 hours(roughly one month)
 @click.option('--block', is_flag=True)
 def crawler_cli(pairs_list, start, status, stop, period, ttl, block):
+    """
+    Orderbook crawler CLI call command
+    Args:
+        pairs_list: trading pairs list
+        start: perform start action flag
+        status: print status action falg
+        stop: perform stop action flag
+        period: polling period
+        ttl: time to live
+        block: is operation blocking flag
+    """
     if start:
         try:
             ttl = timedelta(seconds=timeparse(ttl))
@@ -69,7 +80,7 @@ def clean_candles_cache():
     Cleans candlestick cache directory
     """
     utils.disable_warnings()
-    candles_loader.clean_candles_cache()
+    history_loader.clean_candles_cache()
 
 
 @click.command()
@@ -88,7 +99,7 @@ def download_candles(pair, from_date, to_date, interval):
 
     """
     utils.disable_warnings()
-    candles_loader.load_candles_history(
+    history_loader.load_candles_history(
         client=Client(),
         pair_sym=pair,
         start_dt=parser.parse(from_date),

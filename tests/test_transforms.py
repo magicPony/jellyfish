@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from jellyfish import transform, utils
-from jellyfish.candles_loader import load_candles_history
+from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Client
 
 

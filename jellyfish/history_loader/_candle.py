@@ -9,9 +9,9 @@ from typing import Union
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
-from unicorn_binance_rest_api import BinanceRestApiManager as RestManager
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
+from jellyfish.core import Client
 from jellyfish.constants import (CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME,
                                  QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME,
                                  TAKER_SELL_ASSET_VOLUME)
@@ -34,6 +34,7 @@ def binance_response_to_dataframe(candles) -> pd.DataFrame:
     :param candles: candles sequence
     :return: candles dataframe
     """
+
     def to_numbers(seq: list):
         return [int(i) if isinstance(i, int) else float(i) for i in seq]
 
@@ -70,6 +71,7 @@ def read_candles_frame(frame_path):
     frame.index.names = ['Date']
     return frame
 
+
 def get_sample_frame():
     """
     Get random candles dataframe from cache if possible
@@ -82,7 +84,7 @@ def get_sample_frame():
 
 
 def load_candles_chunk(
-        client: Union[None, RestManager],
+        client: Union[None, Client],
         pair_sym: str,
         start_dt: datetime,
         end_dt: datetime,
@@ -110,7 +112,7 @@ def load_candles_chunk(
 
 
 def load_candles_history(
-        client: Union[None, RestManager],
+        client: Union[None, Client],
         pair_sym: str,
         start_dt: datetime = None,
         end_dt: datetime = None,
@@ -138,12 +140,13 @@ def load_candles_history(
     interval_ms = interval_to_milliseconds(interval)
     total_candles = (end_dt - start_dt) / timedelta(milliseconds=interval_ms)
     chunks_num = math.ceil(total_candles / CANDLES_IN_CHUNK)
-    dates = [(start_dt + timedelta(milliseconds=i*interval_ms*CANDLES_IN_CHUNK))
+    dates = [(start_dt + timedelta(milliseconds=i * interval_ms * CANDLES_IN_CHUNK))
              for i in range(chunks_num)] + [end_dt]
 
     result = []
     for chunk_start_dt, chunk_end_dt in tqdm(list(zip(dates[:-1], dates[1:]))):
-        candles = load_candles_chunk(client, pair_sym, chunk_start_dt, chunk_end_dt, interval)
+        candles = load_candles_chunk(client, pair_sym.upper(), chunk_start_dt, chunk_end_dt,
+                                     interval)
         result.append(candles)
 
     result = pd.concat(result)

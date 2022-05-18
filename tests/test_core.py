@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from jellyfish.candles_loader import load_candles_history
+from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Client
-from jellyfish.core.backtest import _get_ticks_per_year
+from jellyfish.core._backtest import _get_ticks_per_year
 
 
 class TestClient(TestCase):

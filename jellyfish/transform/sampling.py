@@ -5,10 +5,11 @@ import pandas as pd
 import stocktrends
 from tqdm.auto import trange
 
-import jellyfish.transform.sampling_triggers as triggers
+import jellyfish.transform._sampling_triggers as triggers
 from jellyfish import utils
-from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE,
-                                 NUM_OF_TRADES, QUOTE_ASSET_VOLUME)
+from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TRADES,
+                                 QUOTE_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME,
+                                 TAKER_BUY_ASSET_VOLUME, ORDERBOOK)
 
 DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
     OPEN: utils.first,
@@ -16,7 +17,11 @@ DEFAULT_SAMPLING_AGG_WITHOUT_IDX = {
     LOW: 'min',
     CLOSE: utils.last,
     VOLUME: 'sum',
-    NUM_OF_TRADES: 'sum'
+    NUM_OF_TRADES: 'sum',
+    QUOTE_ASSET_VOLUME: 'sum',
+    TAKER_BUY_ASSET_VOLUME: 'sum',
+    TAKER_SELL_ASSET_VOLUME: 'sum',
+    ORDERBOOK: utils.last
 }
 
 DEFAULT_SAMPLING_AGG = {
@@ -50,7 +55,7 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
         progress.update(j - i)
         i = j
 
-    return pd.DataFrame(data, columns=agg.keys())
+    return pd.DataFrame(data, columns=[k for k in agg.keys() if k in ohlc.columns])
 
 
 def tick_imbalance(ohlc: pd.DataFrame,
