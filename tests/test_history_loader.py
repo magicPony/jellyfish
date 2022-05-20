@@ -16,11 +16,8 @@ class TestOrderbookLoader(TestCase):
         start_dt = datetime(year=2021, month=6, day=16)
         end_dt = start_dt + timedelta(days=1)
 
-        orderbook = load_orderbook_history(pair, start_dt=start_dt, end_dt=end_dt)[ORDERBOOK]
-        candles = load_candles_history(Client(), pair, start_dt, end_dt, interval='1m')
-
-        df = candles.join(orderbook)
-        print(df.head())
+        candles = load_candles_history(Client(), pair, start_dt, end_dt, interval='1m',
+                                       read_orderbook=True)
 
 
 class TestCandlesLoader(TestCase):
