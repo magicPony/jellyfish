@@ -71,6 +71,9 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
         agg = DEFAULT_SAMPLING_AGG
 
     agg = {k: v for k, v in agg.items() if k in ohlc.columns}
+    for col in ohlc.columns:
+        if col not in agg.keys():
+            agg[col] = _last
 
     data = []
     i = 0
