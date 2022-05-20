@@ -51,7 +51,7 @@ def load_orderbook_history(pair_sym: str,
                 bids = content['bids']
                 asks = content['asks']
 
-                depth = np.vstack((bids, asks))
+                depth = np.vstack((bids[::-1], asks))
 
         orderbook.append(depth)
 

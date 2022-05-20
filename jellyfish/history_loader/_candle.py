@@ -157,4 +157,5 @@ def load_candles_history(
         orderbook = load_orderbook_history(pair_sym, result.index)
         result = result.join(orderbook)
 
+    result.index.name = DATE
     return result
