@@ -9,6 +9,7 @@ import scipy.signal as scp_signal
 import tulipy as ti
 from hurst import compute_Hc
 from scipy import stats
+from tqdm.auto import trange
 
 HURST_RANDOM_WALK = 'random_walk'
 HURST_CHANGE = 'change'
@@ -423,19 +424,20 @@ def rsi(signal: Sized, period):
     return _add_nans_prefix(ti.rsi(np.array(signal), period), len(signal))
 
 
-def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK):
+def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK, simplified=True):
     """
     Compute hurst exponent signal for momentum validation
     Args:
         signal: signal sequence
         window_size: rolling window size
         kind: kind of signal
+        simplified: use the simplified or the original version of R/S calculation
 
     Returns: hust exponent
     """
     res = np.ones_like(signal) * 0.5
-    for i in range(window_size, len(signal) + 1):
-        res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=True, kind=kind)
+    for i in trange(window_size, len(signal) + 1):
+        res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=simplified, kind=kind)
 
     res[:window_size] = None
     return res

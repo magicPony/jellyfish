@@ -8,7 +8,7 @@ import pandas as pd
 from jellyfish.core import Strategy, Backtest
 
 
-def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True, plot_volume=True):
+def plot_ohlc(ohlc: pd.DataFrame, open_browser=False, show_legend=True, plot_volume=True):
     """
     Plot OHLC chart from dataframe
     Args:
@@ -19,7 +19,8 @@ def plot_ohlc(ohlc: pd.DataFrame, open_browser=True, show_legend=True, plot_volu
     """
     backtest = Backtest(ohlc, strategy=Strategy)
     backtest.run()
-    backtest.plot(open_browser=open_browser, show_legend=show_legend, plot_volume=plot_volume)
+    return backtest.plot(open_browser=open_browser, show_legend=show_legend,
+                         plot_volume=plot_volume)
 
 
 def disable_warnings():

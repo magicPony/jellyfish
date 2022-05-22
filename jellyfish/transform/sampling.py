@@ -67,6 +67,7 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
 
     Returns: downsampled data
     """
+    ohlc = ohlc.copy(True)
     if agg is None:
         agg = DEFAULT_SAMPLING_AGG
 
