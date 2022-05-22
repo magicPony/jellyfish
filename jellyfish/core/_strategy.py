@@ -53,8 +53,12 @@ class Strategy(backtesting.Strategy):
         """
         name = name or column_name
         display_name = name[2:] if name.startswith('i_') else name
-        return self.I(lambda x: x, self.data.df[column_name],
-                      name=display_name, overlay=overlay, scatter=scatter)
+        data = self.data.df[column_name]
+        price_range = self.data.Low.min(), self.data.High.max()
+        if overlay is None and price_range[0] <= data.min() and data.max() <= price_range[1]:
+            overlay = True
+
+        return self.I(lambda x: x, data, name=display_name, overlay=overlay, scatter=scatter)
 
 
 class BuyAndHold(Strategy):
