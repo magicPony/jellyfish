@@ -131,7 +131,7 @@ def _add_nans_prefix(seq: np.ndarray, target_len):
     Returns: sequence with leading nan's
     """
     seq = seq.tolist()
-    seq = [None] * (target_len - len(seq)) + seq
+    seq = [seq[0]] * (target_len - len(seq)) + seq
     return np.array(seq)
 
 
