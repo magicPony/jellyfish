@@ -4,10 +4,10 @@ from unittest import TestCase
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
-from jellyfish.constants import CANDLES_HISTORY_PATH, ORDERBOOK
+from jellyfish.constants import CANDLES_HISTORY_PATH
 from jellyfish.core import Client
 from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
-                                      get_sample_frame, load_orderbook_history)
+                                      get_sample_frame)
 
 
 class TestOrderbookLoader(TestCase):

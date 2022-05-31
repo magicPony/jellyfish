@@ -371,13 +371,14 @@ def dumb_sr_lines(high, low, n_lookback=20, low_extreme=0.1, high_extreme=0.1):
         low_extreme: support line high-low range weight
         high_extreme: resistance line high-low range weight
     """
-    rolling = lambda data, cb: np.array([cb(data[i - n_lookback:i + 1])
-                                         for i in range(n_lookback, len(data))])
-    rlng_high = rolling(high, np.max)
-    rlng_low = rolling(low, np.min)
-    rlng_range = rlng_high - rlng_low
-    support = _add_nans_prefix(rlng_low + rlng_range * low_extreme, len(high))
-    resistance = _add_nans_prefix(rlng_high - rlng_range * high_extreme, len(high))
+    def rolling(data, cb):
+        return np.array([cb(data[i - n_lookback:i + 1]) for i in range(n_lookback, len(data))])
+
+    rolling_high = rolling(high, np.max)
+    rolling_low = rolling(low, np.min)
+    rolling_range = rolling_high - rolling_low
+    support = _add_nans_prefix(rolling_low + rolling_range * low_extreme, len(high))
+    resistance = _add_nans_prefix(rolling_high - rolling_range * high_extreme, len(high))
     return support, resistance
 
 
@@ -445,12 +446,12 @@ def heiken_ashi(price_open: np.ndarray,
                 price_low: np.ndarray,
                 price_close: np.ndarray):
     """
-    Hieken ashi candle prices
+    Heiken ashi candle prices
     Args:
         price_open: open price
         price_high: close price
         price_low: low price
-        price_close: close [rice
+        price_close: close price
 
     Returns: heiken ashi candle prices
     """

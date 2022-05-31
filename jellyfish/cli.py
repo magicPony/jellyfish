@@ -29,7 +29,7 @@ def crawler_cli(pairs_list, start, status, stop, period, ttl, block):
     Args:
         pairs_list: trading pairs list
         start: perform start action flag
-        status: print status action falg
+        status: print status action flag
         stop: perform stop action flag
         period: polling period
         ttl: time to live
