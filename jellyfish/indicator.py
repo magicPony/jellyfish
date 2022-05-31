@@ -210,6 +210,143 @@ def fisher(high, low, period=25):
     return res
 
 
+def wcprice(high, low, close):
+    return _add_nans_prefix(ti.wcprice(np.array(high), np.array(low), np.array(close)),
+                            target_len=len(close))
+
+
+def vwma(close, volume, period):
+    return _add_nans_prefix(ti.vwma(np.array(close), np.array(volume), period), target_len=len(close))
+
+
+def ultosc(high, low, close, short_period, medium_period, long_period):
+    return _add_nans_prefix(ti.ultosc(np.array(high), np.array(low), np.array(close), short_period, medium_period, long_period), target_len=len(high))
+
+
+def dema(real, period):
+    return _add_nans_prefix(ti.dema(np.array(real), period), target_len=len(real))
+
+
+def tema(real, period):
+    return _add_nans_prefix(ti.tema(np.array(real), period), target_len=len(real))
+
+
+def zlema(real, period):
+    return _add_nans_prefix(ti.zlema(np.array(real), period), target_len=len(real))
+
+
+def roc(real, period):
+    return _add_nans_prefix(ti.roc(np.array(real), period), target_len=len(real))
+
+
+def trima(real, period):
+    return _add_nans_prefix(ti.trima(np.array(real), period), target_len=len(real))
+
+
+def trix(real, period):
+    return _add_nans_prefix(ti.trix(np.array(real), period), target_len=len(real))
+
+
+def adx(high, low, close, period):
+    return _add_nans_prefix(ti.adx(np.array(high), np.array(low), np.array(close), period),
+                            target_len=len(high))
+
+
+def cci(high, low, close, period):
+    return _add_nans_prefix(ti.cci(np.array(high), np.array(low), np.array(close), period),
+                            target_len=len(high))
+
+
+def qstick(open, close, period):
+    return _add_nans_prefix(ti.qstick(np.array(open), np.array(close), period), target_len=len(close))
+
+
+def volatility(real, period):
+    return _add_nans_prefix(ti.volatility(np.array(real), period), target_len=len(real))
+
+
+def pvi(close, volume):
+    return _add_nans_prefix(ti.pvi(np.array(close), np.array(volume)), target_len=len(close))
+
+
+def ppo(real, short_period, long_period):
+    return _add_nans_prefix(ti.ppo(np.array(real), short_period, long_period), target_len=len(real))
+
+
+def obv(close, volume):
+    return _add_nans_prefix(ti.obv(np.array(close), np.array(volume)), target_len=len(volume))
+
+
+def msw(real, period):
+    res = np.zeros((2, len(real)))
+    res[:, period:] = ti.msw(np.array(real), period)
+    return res
+
+
+def mom(real, period):
+    return _add_nans_prefix(ti.mom(np.array(real), period), target_len=len(real))
+
+
+def linregintercept(real, period):
+    return _add_nans_prefix(ti.linregintercept(np.array(real), period), target_len=len(real))
+
+
+def linreg(real, period):
+    return _add_nans_prefix(ti.linreg(np.array(real), period), target_len=len(real))
+
+
+def hma(signal: Iterable, period):
+    return _add_nans_prefix(ti.hma(np.array(signal), period), target_len=len(signal))
+
+
+def kama(signal: Iterable, period):
+    return _add_nans_prefix(ti.kama(np.array(signal), period), target_len=len(signal))
+
+
+def fosc(real, period):
+    return _add_nans_prefix(ti.fosc(np.array(real), period), len(real))
+
+
+def emv(high, low, volume):
+    return _add_nans_prefix(ti.emv(np.array(high), np.array(low), np.array(volume)), len(volume))
+
+
+def decay(real, period):
+    return _add_nans_prefix(ti.decay(np.array(real), period), len(real))
+
+
+def div(real, real2):
+    return _add_nans_prefix(ti.div(np.array(real), np.array(real2)), len(real))
+
+
+def di(high, low, close, period):
+    res = np.zeros((2, len(high)))
+    res[:, period - 1:] = ti.di(np.array(high), np.array(low), np.array(close), period)
+    return res
+
+
+def cvi(high, low, period):
+    return _add_nans_prefix(ti.cvi(np.array(high), np.array(low), period), len(high))
+
+
+def ao(high, low):
+    return _add_nans_prefix(ti.ao(np.array(high), np.array(low)), len(high))
+
+
+def apo(signal, short_period, long_period):
+    return _add_nans_prefix(ti.apo(np.array(signal), short_period, long_period), len(signal))
+
+
+def ad(high, low, close, volume):
+    return _add_nans_prefix(ti.ad(np.array(high), np.array(low), np.array(close),
+                                  np.array(volume)), len(close))
+
+
+def adosc(high, low, close, volume, short_period, long_period):
+    return _add_nans_prefix(ti.adosc(np.array(high), np.array(low), np.array(close),
+                                     np.array(volume), short_period, long_period), len(close))
+
+
 def cmo(signal, period=25):
     """
     Compute Chande Momentum Oscillator
@@ -383,7 +520,7 @@ def dumb_sr_lines(high, low, n_lookback=20, low_extreme=0.1, high_extreme=0.1):
     return support, resistance
 
 
-def awesome(high, low, fast_period=5, slow_period=34):
+def awesome(high, low):
     """
     Compute Awesome Oscillator
     Args:
@@ -392,10 +529,7 @@ def awesome(high, low, fast_period=5, slow_period=34):
         fast_period: fast SMA period
         slow_period: slow SMA period
     """
-    midprice = (np.array(high) + np.array(low)) / 2
-    fast_ma = ti.sma(np.array(midprice), fast_period)[slow_period - fast_period:]
-    slow_ma = ti.sma(np.array(midprice), slow_period)
-    return _add_nans_prefix(fast_ma - slow_ma, len(high))
+    return _add_nans_prefix(ti.ao(np.array(high), np.array(low)), len(high))
 
 
 def aroon_oscillator(signal_high: Iterable = None, signal_low: Iterable = None, period=25):
@@ -408,8 +542,8 @@ def aroon_oscillator(signal_high: Iterable = None, signal_low: Iterable = None, 
 
     Returns: aroon oscillator
     """
-    ind = aroon(signal_high, signal_low, period)
-    return ind[0] - ind[1]
+    return _add_nans_prefix(ti.aroonosc(np.array(signal_high), np.array(signal_low), period),
+                            len(signal_high))
 
 
 def rsi(signal: Sized, period):
