@@ -9,6 +9,7 @@ import scipy.signal as scp_signal
 import tulipy as ti
 from hurst import compute_Hc
 from scipy import stats
+from tqdm.auto import trange
 
 HURST_RANDOM_WALK = 'random_walk'
 HURST_CHANGE = 'change'
@@ -382,19 +383,14 @@ def dumb_sr_lines(high, low, n_lookback=20, low_extreme=0.1, high_extreme=0.1):
     return support, resistance
 
 
-def awesome(high, low, fast_period=5, slow_period=34):
+def awesome(high, low):
     """
     Compute Awesome Oscillator
     Args:
         high: signal sequence for highs
         low: signal sequence for lows
-        fast_period: fast SMA period
-        slow_period: slow SMA period
     """
-    midprice = (np.array(high) + np.array(low)) / 2
-    fast_ma = ti.sma(np.array(midprice), fast_period)[slow_period - fast_period:]
-    slow_ma = ti.sma(np.array(midprice), slow_period)
-    return _add_nans_prefix(fast_ma - slow_ma, len(high))
+    return _add_nans_prefix(ti.ao(np.array(high), np.array(low)), len(high))
 
 
 def aroon_oscillator(signal_high: Iterable = None, signal_low: Iterable = None, period=25):
@@ -407,8 +403,8 @@ def aroon_oscillator(signal_high: Iterable = None, signal_low: Iterable = None, 
 
     Returns: aroon oscillator
     """
-    ind = aroon(signal_high, signal_low, period)
-    return ind[0] - ind[1]
+    return _add_nans_prefix(ti.aroonosc(np.array(signal_high), np.array(signal_low), period),
+                            len(signal_high))
 
 
 def rsi(signal: Sized, period):
@@ -423,19 +419,20 @@ def rsi(signal: Sized, period):
     return _add_nans_prefix(ti.rsi(np.array(signal), period), len(signal))
 
 
-def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK):
+def hurst(signal: Sized, window_size=100, kind=HURST_RANDOM_WALK, simplified=True):
     """
     Compute hurst exponent signal for momentum validation
     Args:
         signal: signal sequence
         window_size: rolling window size
         kind: kind of signal
+        simplified: use the simplified or the original version of R/S calculation
 
     Returns: hust exponent
     """
     res = np.ones_like(signal) * 0.5
-    for i in range(window_size, len(signal) + 1):
-        res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=True, kind=kind)
+    for i in trange(window_size, len(signal) + 1):
+        res[i - 1], _, _ = compute_Hc(signal[i - window_size:i], simplified=simplified, kind=kind)
 
     res[:window_size] = None
     return res

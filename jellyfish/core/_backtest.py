@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import backtesting
 import numpy as np
+import os
 import pandas as pd
 
 from jellyfish.constants import CACHE_PATH, DATE
@@ -28,6 +29,10 @@ def _get_ticks_per_year(ohlc: pd.DataFrame):
     dates = dates.tolist()
     years = (dates[-1] - dates[0]) / timedelta(days=365)
     return len(ohlc) / years
+
+
+def _is_jupyter_environ():
+    return 'JPY_PARENT_PID' in os.environ
 
 
 class Backtest(backtesting.Backtest):
@@ -60,13 +65,13 @@ class Backtest(backtesting.Backtest):
             plot_volume: If `plot_volume` is `True`, the resulting plot will contain
                          a trade volume section.
         """
-        if filename is None:
+        if filename is None and (not _is_jupyter_environ() or open_browser):
             filename = (CACHE_PATH / 'test.html').as_posix()
 
         assert len(kwargs) == 0
-        backtesting.Backtest.plot(self, filename=filename, show_legend=show_legend,
-                                  open_browser=open_browser, plot_volume=plot_volume,
-                                  superimpose=False)
+        return backtesting.Backtest.plot(self, filename=filename, show_legend=show_legend,
+                                         open_browser=open_browser, plot_volume=plot_volume,
+                                         superimpose=False)
 
     def run(self, **kwargs) -> pd.Series:
         """
