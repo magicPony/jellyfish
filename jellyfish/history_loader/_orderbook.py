@@ -49,6 +49,7 @@ def load_orderbook_history(pair_sym: str,
 
     Returns: dataframe with orderbook data
     """
+    dates = sorted(dates)
     base_path = ORDERBOOK_PATH / pair_sym.upper()
     if not base_path.exists():
         logging.error('No orderbook data for symbol %s', pair_sym)
@@ -73,7 +74,7 @@ def load_orderbook_history(pair_sym: str,
     frame = pd.DataFrame({
         DATE: dates,
         ORDERBOOK: orderbook
-    }).dropna()
+    })
 
     frame.set_index(DATE, inplace=True)
     return frame

@@ -152,11 +152,12 @@ def load_candles_history(
                                       interval)
         result.append(candles)
 
-    result = pd.concat(result).sort_index().sort_index(axis=1)
+    result = pd.concat(result)
     if read_orderbook:
-        orderbook = load_orderbook_history(pair_sym, result.index,
+        orderbook = load_orderbook_history(pair_sym, result.index.tolist(),
                                            max_lag=timedelta(milliseconds=interval_ms))
         result = result.join(orderbook)
 
     result.index.name = DATE
+    result.sort_index(inplace=True)
     return result
