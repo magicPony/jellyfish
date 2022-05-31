@@ -11,6 +11,7 @@ class Strategy(backtesting.Strategy):
     """
     Dummy empty strategy
     """
+
     def init(self):
         for col in self.data.df.columns:
             try:
@@ -33,7 +34,9 @@ class Strategy(backtesting.Strategy):
             scatter: plot circles instead of a connected line segment
 
         """
-        to_hline = lambda lvl: np.ones_like(self.data.Close) * lvl
+        def to_hline(lvl):
+            return np.ones_like(self.data.Close) * lvl
+
         if force or self.data.Low.min() <= price <= self.data.High.max():
             self.I(to_hline, price, name=name, color=color, overlay=True, scatter=scatter)
 
@@ -58,11 +61,13 @@ class BuyAndHold(Strategy):
     """
     Simple buy&hold strategy
     """
+
     def next(self):
         if len(self.trades) == 0:
             self.buy()
 
 
+# noinspection PyAttributeOutsideInit
 class SmaCross(Strategy):
     """
     Simple moving average crossover strategy

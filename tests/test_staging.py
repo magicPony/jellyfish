@@ -10,6 +10,7 @@ from jellyfish.core import Backtest, Client
 from jellyfish.core.strategy import SmaCross, BuyAndHold
 
 
+# noinspection PyAttributeOutsideInit
 class SmaCrossWithIndicators(SmaCross):
     def init(self):
         self.hurst = self.I(indicator.hurst, self.data.Close, kind='price',
@@ -30,7 +31,6 @@ class SmaCrossWithIndicators(SmaCross):
 class Test(TestCase):
     def test_heiken_ashi_strategy(self):
         end_dt = datetime(year=2022, month=4, day=3)
-        start_dt = end_dt - timedelta(days=30 * 16 * 2)
         start_dt = end_dt - timedelta(days=30 * 3)
         frame = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
 
