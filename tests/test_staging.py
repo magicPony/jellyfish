@@ -44,7 +44,7 @@ class Test(TestCase):
         t = transform.compose([
             (sampling.tick_imbalance, 10),
         ])
-        frame = t(frame.reset_index())
+        frame = t(frame)
 
         SmaCrossWithIndicators.n1 = 10
         SmaCrossWithIndicators.n2 = 30
