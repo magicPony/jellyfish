@@ -67,6 +67,9 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
 
     Returns: downsampled data
     """
+    if ohlc.index.name == DATE:
+        ohlc.reset_index(inplace=True)
+
     if agg is None:
         agg = DEFAULT_SAMPLING_AGG
 
@@ -87,7 +90,11 @@ def _generic_sampling(ohlc: pd.DataFrame, condition_cb, agg: dict = None):
         progress.update(j - i)
         i = j
 
-    return pd.DataFrame(data)
+    ohlc = pd.DataFrame(data)
+    if DATE in ohlc.columns:
+        ohlc.set_index(DATE, inplace=True)
+
+    return ohlc
 
 
 def tick_imbalance(ohlc: pd.DataFrame,
@@ -208,6 +215,9 @@ def renko_bars(ohlc: pd.DataFrame,
 
     Returns: renko chart
     """
+    if ohlc.index.name == DATE:
+        ohlc.reset_index(inplace=True)
+
     def rename(columns: pd.Index, rename_map: dict):
         res = list(range(len(columns)))
         for i, name in enumerate(columns):
@@ -245,4 +255,7 @@ def renko_bars(ohlc: pd.DataFrame,
                            ][volume_col].sum())
 
     ohlc[volume_col] = volumes
+    if DATE in ohlc.columns:
+        ohlc.set_index(DATE, inplace=True)
+
     return ohlc

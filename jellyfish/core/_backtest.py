@@ -48,7 +48,7 @@ class Backtest(backtesting.Backtest):
                  commission=FUTURES_MAKER_COMMISSION,  # e.g. 0.04% for "maker" orders on Binance
                  margin: float = 1.,
                  trade_on_close=False):
-        backtesting.Backtest.__init__(self, data=data, strategy=strategy,
+        backtesting.Backtest.__init__(self, data=data.copy(), strategy=strategy,
                                       cash=cash, commission=commission,
                                       margin=margin, trade_on_close=trade_on_close)
 

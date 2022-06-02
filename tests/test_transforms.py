@@ -17,12 +17,12 @@ class TestTransform(TestCase):
     def test_heiken_ashi(self):
         frame = TestTransform.load_sample_data()
         transform.to_heiken_ashi(frame)
-        utils.plot_ohlc(frame.reset_index())
+        utils.plot_ohlc(frame)
 
     def test_log_prices(self):
         frame = TestTransform.load_sample_data()
         transform.to_log_prices(frame)
-        utils.plot_ohlc(frame.reset_index())
+        utils.plot_ohlc(frame)
 
 
 class TestSampling(TestCase):
@@ -34,32 +34,32 @@ class TestSampling(TestCase):
 
     def test_tick_bars(self):
         frame = self.frame
-        frame = sampling.tick_bars(frame.reset_index(), 3e5)
-        utils.plot_ohlc(frame.reset_index())
+        frame = sampling.tick_bars(frame, 3e5)
+        utils.plot_ohlc(frame)
 
     def test_line_break_bars(self):
         frame = self.frame
-        frame = sampling.line_break_bars(frame.reset_index(), 10)
-        utils.plot_ohlc(frame.reset_index())
+        frame = sampling.line_break_bars(frame, 10)
+        utils.plot_ohlc(frame)
 
     def test_volume_bars(self):
         frame = self.frame
-        frame = sampling.volume_bars(frame.reset_index(), 2e3)
-        utils.plot_ohlc(frame.reset_index())
+        frame = sampling.volume_bars(frame, 2e3)
+        utils.plot_ohlc(frame)
 
     def test_renko(self):
         frame = self.frame
-        frame = sampling.renko_bars(frame.reset_index(), 100)
+        frame = sampling.renko_bars(frame, 100)
         utils.plot_ohlc(frame)
 
     def test_dollars(self):
         frame = self.frame
-        frame = sampling.dollar_bars(frame.reset_index(), 1e8)
+        frame = sampling.dollar_bars(frame, 1e8)
         utils.plot_ohlc(frame)
 
     def test_tick_imbalance(self):
         frame = self.frame
-        frame = sampling.tick_imbalance(frame.reset_index(), 7)
+        frame = sampling.tick_imbalance(frame, 7)
         utils.plot_ohlc(frame)
 
     def test_compose(self):
@@ -76,6 +76,6 @@ class TestSampling(TestCase):
         ])
 
         frame = self.frame
-        frame = t(frame.reset_index())
+        frame = t(frame)
 
         utils.plot_ohlc(frame)

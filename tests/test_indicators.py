@@ -72,6 +72,6 @@ class Test(TestCase):
         frame['i_mfi'] = indicator.mfi(frame.High, frame.Low, frame.Close, frame.Volume, 25)
         frame['i_marketfi'] = indicator.marketfi(frame.High, frame.Low, frame.Volume)
 
-        backtest = Backtest(frame.reset_index(), DummyWithIndicators)
+        backtest = Backtest(frame, DummyWithIndicators)
         backtest.run()
         backtest.plot()
