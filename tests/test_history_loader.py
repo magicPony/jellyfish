@@ -12,7 +12,7 @@ from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
 
 class TestOrderbookLoader(TestCase):
     def test_load(self):
-        pair = 'btcusdt'
+        pair = 'BTCUSDT'
         start_dt = datetime(year=2021, month=6, day=16)
         end_dt = start_dt + timedelta(days=1)
 

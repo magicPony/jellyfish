@@ -69,6 +69,25 @@ def create_db_connection(table_name):
     return connection
 
 
+def clean_candles_cache():
+    CANDLES_DB_PATH.unlink(missing_ok=True)
+
+
+def get_sample_frame(max_records=1000):
+    try:
+        connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
+    except sqlite3.OperationalError:
+        return None
+
+    curses = connection.cursor()
+    for table_name in curses.execute('SELECT name FROM sqlite_master WHERE type="table"'):
+        candles = list(curses.execute(f'SELECT * FROM {table_name} LIMIT {max_records}'))
+        if len(candles) > 0:
+            return candles
+
+    return None
+
+
 @lru_cache(maxsize=20)
 def load_candles_history(
         pair_sym: str,
