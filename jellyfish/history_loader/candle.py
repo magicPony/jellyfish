@@ -15,7 +15,7 @@ from jellyfish.constants import (CANDLES_HISTORY_PATH, DATE, OPEN, HIGH, LOW, CL
                                  QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME,
                                  TAKER_SELL_ASSET_VOLUME)
 from jellyfish.core import Client
-from jellyfish.history_loader._orderbook import load_orderbook_history
+from jellyfish.history_loader.orderbook import load_orderbook_history
 
 CANDLES_IN_CHUNK = 1000
 

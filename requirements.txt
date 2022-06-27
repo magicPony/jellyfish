@@ -2,14 +2,13 @@ scipy
 numpy
 pandas
 tqdm
-setuptools
+setuptools==62.6.0
 backtesting
 newtulipy
 unicorn-binance-rest-api
 python-dateutil
 click
-stocktrends
-jellyfish
+stocktrends==0.1.5
 matplotlib
 hurst
 plotly

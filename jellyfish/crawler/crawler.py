@@ -10,7 +10,7 @@ import psutil
 import requests
 
 from jellyfish.constants import ORDERBOOK_PATH
-from jellyfish.crawler._daemon import Daemon
+from jellyfish.crawler.daemon import Daemon
 
 EXIT_CODE_OK = 200
 JELLY_CRAWLER = 'jelly_crawler'

@@ -7,7 +7,7 @@ from jellyfish import transform, indicator
 from jellyfish.transform import sampling
 from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Backtest, Client
-from jellyfish.core._strategy import SmaCross, BuyAndHold
+from jellyfish.core.strategy import SmaCross, BuyAndHold
 
 
 # noinspection PyAttributeOutsideInit

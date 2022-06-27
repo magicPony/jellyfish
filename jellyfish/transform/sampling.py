@@ -5,7 +5,7 @@ import pandas as pd
 import stocktrends
 from tqdm.auto import trange
 
-import jellyfish.transform._sampling_triggers as triggers
+import jellyfish.transform.sampling_triggers as triggers
 from jellyfish.constants import (OPEN, HIGH, LOW, CLOSE, VOLUME, DATE, NUM_OF_TRADES,
                                  QUOTE_ASSET_VOLUME, TAKER_SELL_ASSET_VOLUME,
                                  TAKER_BUY_ASSET_VOLUME, ORDERBOOK)

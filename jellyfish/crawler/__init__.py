@@ -1,4 +1,4 @@
 """
 Orderbook crawler
 """
-from jellyfish.crawler._crawler import Crawler
+from jellyfish.crawler.crawler import Crawler
