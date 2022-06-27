@@ -1,9 +1,10 @@
 import sqlite3
-from enum import Enum
 from datetime import datetime, timedelta
+from enum import Enum
 from functools import lru_cache
 
 import numpy as np
+import pandas as pd
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
 from jellyfish.constants import CANDLES_DB_PATH
@@ -104,3 +105,9 @@ def load_candles_history(
         connection.commit()
 
     candles = np.array(candles)
+    df = pd.DataFrame()
+    for i, (key, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
+        col_name = ''.join(word.capitalize() for word in key.split('_'))
+        df[col_name] = candles[:, i].astype(np.int if val_type == ResponseDTypes.INT else np.float)
+
+    return df
