@@ -6,12 +6,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          python-version: '3.10'
-          architecture: 'x64'
-
-      - name: Update PIP
-        run: pip install --upgrade pip
 
       - name: Install package
         run: pip install .
