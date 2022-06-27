@@ -9,7 +9,6 @@ from dateutil import parser
 from pytimeparse.timeparse import timeparse
 
 from jellyfish import utils, history_loader
-from jellyfish.core import Client
 from jellyfish.crawler import Crawler
 
 
@@ -100,7 +99,6 @@ def download_candles(pair, from_date, to_date, interval):
     """
     utils.disable_warnings()
     history_loader.load_candles_history(
-        client=Client(),
         pair_sym=pair,
         start_dt=parser.parse(from_date),
         end_dt=parser.parse(to_date),

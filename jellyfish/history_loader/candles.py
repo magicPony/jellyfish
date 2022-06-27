@@ -113,25 +113,26 @@ def _load_candles_chunk(
 
 
 def load_candles_history(
-        client: Union[None, Client],
         pair_sym: str,
         start_dt: datetime = None,
         end_dt: datetime = None,
         interval: str = '1h',
         *,
+        client: Client = None,
         candles_num=None,
         read_orderbook=False) -> pd.DataFrame:
     """
     Downloads japanese candles from binance with cached data usage if possible
-    :param client: binance client
     :param pair_sym: trading pair
     :param start_dt: start date
     :param end_dt: end date
     :param interval: candle interval
+    :param client: binance client
     :param candles_num: define number of candles to load
     :param read_orderbook: read orderbook data flag
     :return: candles dataframe
     """
+    client = client or Client()
     assert start_dt is not None or end_dt is not None
     if candles_num is not None:
         duration = timedelta(milliseconds=interval_to_milliseconds(interval) * candles_num)

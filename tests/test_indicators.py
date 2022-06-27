@@ -30,7 +30,7 @@ class Test(TestCase):
     def test_volume_profile(self):
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=30 * 4)
-        frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
+        frame = load_candles_history('BTCUSDT', start_dt, end_dt, '4h')
 
         prices = frame.Close.to_numpy()
         volumes = frame.Volume.to_numpy()
@@ -47,7 +47,7 @@ class Test(TestCase):
     def test_indicators(self):
         end_dt = datetime(year=2022, month=2, day=3)
         start_dt = end_dt - timedelta(days=30 * 4)
-        frame = load_candles_history(Client(), 'BTCUSDT', start_dt, end_dt, '4h')
+        frame = load_candles_history('BTCUSDT', start_dt, end_dt, '4h')
 
         frame['i_hurst_random_walk'] = indicator.hurst(frame.Close)
         frame['i_hurst_change'] = indicator.hurst(frame.Close, 100, indicator.HURST_CHANGE)

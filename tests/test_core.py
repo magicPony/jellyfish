@@ -14,7 +14,7 @@ class TestClient(TestCase):
     def test_ticks_per_year(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 16 * 2)
-        frame = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1d')
+        frame = load_candles_history('XRPUSDT', start_dt, end_dt, '1d')
 
         self.assertIsNotNone(_get_ticks_per_year(frame))
         self.assertIsNotNone(_get_ticks_per_year(frame.reset_index()))
