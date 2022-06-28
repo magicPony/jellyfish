@@ -17,6 +17,9 @@ TIMESTAMP = 'timestamp'
 
 
 class ResponseDTypes(Enum):
+    """
+    SQLite data types
+    """
     REAL = 'REAL'
     INT = 'INT'
 
@@ -35,24 +38,16 @@ RESPONSE_STRUCTURE = {
 }
 
 
-def load_from_db(cursor: sqlite3.Cursor,
-                 table_name,
-                 start_dt: datetime,
-                 end_dt: datetime):
-    cmd = f'SELECT * FROM {table_name} WHERE {start_dt.microsecond}<={TIMESTAMP} AND {TIMESTAMP}<={end_dt.microsecond}'
-    cursor.execute(cmd)
-    return cursor.fetchall()
-
-
-def insert_to_db(cursor: sqlite3.Cursor,
-                 table_name,
-                 candles):
-    cmd = f'INSERT OR IGNORE INTO {table_name} ' \
-          f'VALUES ({",".join("?" for _ in range(np.shape(candles)[1]))})'
-    cursor.executemany(cmd, candles)
-
-
 def create_db_connection(table_name):
+    """
+    Parameters
+    ----------
+    table_name : db table name
+
+    Returns
+    -------
+    Create candlestick cache database connection
+    """
     connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
     cursor = connection.cursor()
     cmd = f'CREATE TABLE IF NOT EXISTS {table_name} ' \
@@ -64,6 +59,9 @@ def create_db_connection(table_name):
 
 
 def clean_candles_cache():
+    """
+    Clear candles cache
+    """
     connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
     cursor = connection.cursor()
     cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
@@ -75,30 +73,49 @@ def clean_candles_cache():
 
 
 def get_sample_frame(max_records=1000):
+    """
+    Parameters
+    ----------
+    max_records : limit of records to load
+
+    Returns
+    -------
+    Get some sample frame (mainly in debug purposes)
+    """
     connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
     cursor = connection.cursor()
     cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
     available_tables = [t[0] for t in cursor.fetchall()]
     for table_name in available_tables:
         cursor.execute(f'SELECT * FROM {table_name} LIMIT {max_records}')
-        candles = cursor.fetchall()
-        if len(candles) > 0:
-            return parse_raw_candles(candles)
+        raw_candles = cursor.fetchall()
+        if len(raw_candles) > 0:
+            return parse_raw_candles(raw_candles)
 
     return None
 
 
-def parse_raw_candles(candles):
-    candles = np.array(candles)
-    df = pd.DataFrame()
+def parse_raw_candles(raw_candles):
+    """
+    Parameters
+    ----------
+    raw_candles : japanese candlestick plain raw data
+
+    Returns
+    -------
+    dataframe with candlesticks
+    """
+    raw_candles = np.array(raw_candles)
+    frame = pd.DataFrame()
     for i, (key, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
         col_name = ''.join(word.capitalize() for word in key.split('_'))
-        df[col_name] = candles[:, i].astype(np.int if val_type == ResponseDTypes.INT else np.float)
+        frame[col_name] = raw_candles[:, i].astype(
+            np.int if val_type == ResponseDTypes.INT else np.float)
 
-    df['Date'] = pd.to_datetime(df.Timestamp * 1e6)
-    df.drop(TIMESTAMP.capitalize(), axis=1, inplace=True)
-    df.set_index('Date', inplace=True)
-    return df
+    frame['Date'] = pd.to_datetime(frame.Timestamp * 1e6)
+    frame.drop(TIMESTAMP.capitalize(), axis=1, inplace=True)
+    frame.set_index('Date', inplace=True)
+    return frame
 
 
 @lru_cache(maxsize=20)
@@ -111,6 +128,21 @@ def load_candles_history(
         client: Client = None,
         candles_num=None,
         read_orderbook=False):
+    """
+    Parameters
+    ----------
+    pair_sym : trading pair
+    start_dt : start datetime
+    end_dt : end datetime
+    interval : candle sampling size
+    client : Binance REST Client
+    candles_num : number of candles to load
+    read_orderbook : read alongside orderbook data
+
+    Returns
+    -------
+    Get japanese candlestick chart from Binance
+    """
     assert start_dt is not None or end_dt is not None
     interval_ms = interval_to_milliseconds(interval)
     if candles_num is not None:
@@ -127,19 +159,26 @@ def load_candles_history(
     connection = create_db_connection(table_name)
     cursor = connection.cursor()
 
-    candles = load_from_db(cursor, table_name, start_dt, end_dt)
-    if len(candles) != candles_num:
+    cmd = f'SELECT * FROM {table_name} ' \
+          f'WHERE {start_dt.microsecond}<={TIMESTAMP} AND {TIMESTAMP}<={end_dt.microsecond}'
+    cursor.execute(cmd)
+    raw_candles = cursor.fetchall()
+    if len(raw_candles) != candles_num:
         client = client or Client()
 
-        binance_response = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
-        candles = [candle[1:11] for candle in binance_response]
+        binance_response = client.get_historical_klines(pair_sym, interval,
+                                                        str(start_dt), str(end_dt))
+        raw_candles = [candle[1:11] for candle in binance_response]
 
-        insert_to_db(cursor, table_name, candles)
+        cmd = f'INSERT OR IGNORE INTO {table_name} ' \
+              f'VALUES ({",".join("?" for _ in range(np.shape(raw_candles)[1]))})'
+        cursor.executemany(cmd, raw_candles)
         connection.commit()
 
-    df = parse_raw_candles(candles)
+    frame = parse_raw_candles(raw_candles)
     if read_orderbook:
-        orderbook = load_orderbook_history(pair_sym, df.index, max_lag=timedelta(milliseconds=interval_ms))
-        df = df.join(orderbook)
+        orderbook = load_orderbook_history(pair_sym, frame.index,
+                                           max_lag=timedelta(milliseconds=interval_ms))
+        frame = frame.join(orderbook)
 
-    return df
+    return frame
