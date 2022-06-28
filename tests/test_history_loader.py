@@ -27,7 +27,7 @@ class TestCandlesLoader(TestCase):
         interval = interval
 
         clean_candles_cache()
-        self.assertFalse(CANDLES_DB_PATH.exists())
+        self.assertIsNone(get_sample_frame())
 
         data = load_candles_history(pair, start_dt, end_dt, interval, client=Client())
         self.assertGreater(len(data), 0)
@@ -47,6 +47,11 @@ class TestCandlesLoader(TestCase):
 
         load_candles_history('XRPUSDT', parser.parse('2021-01-08 12:22'), parser.parse('2021-01-09 12:22'), '1h')
         self.assertIsNotNone(get_sample_frame())
+
+        max_records = 3
+        data = get_sample_frame(max_records=max_records)
+        self.assertEqual(len(data), max_records)
+
 
     def test_define_candles_num(self):
         candles_num = 123

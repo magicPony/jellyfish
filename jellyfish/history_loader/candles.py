@@ -64,15 +64,18 @@ def create_db_connection(table_name):
 
 
 def clean_candles_cache():
-    CANDLES_DB_PATH.unlink(missing_ok=True)
+    connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
+    cursor = connection.cursor()
+    cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
+    available_tables = [t[0] for t in cursor.fetchall()]
+    for table_name in available_tables:
+        cursor.execute(f'DELETE FROM {table_name}')
+
+    connection.commit()
 
 
 def get_sample_frame(max_records=1000):
-    try:
-        connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
-    except sqlite3.OperationalError:
-        return None
-
+    connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
     cursor = connection.cursor()
     cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
     available_tables = [t[0] for t in cursor.fetchall()]
