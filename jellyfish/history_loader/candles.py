@@ -38,21 +38,15 @@ RESPONSE_STRUCTURE = {
 def load_from_db(cursor: sqlite3.Cursor,
                  table_name,
                  start_dt: datetime,
-                 end_dt: datetime,
-                 interval_ms: int):
-    microseconds_in_millisecond = timedelta(milliseconds=1) / timedelta(microseconds=1)
-
-    first_timestamp = start_dt.timestamp() * microseconds_in_millisecond
-    first_timestamp = first_timestamp + (interval_ms - first_timestamp % interval_ms) % interval_ms
-    last_timestamp = end_dt.timestamp() * microseconds_in_millisecond
-
-    cmd = f'SELECT * FROM {table_name} WHERE {first_timestamp}<={TIMESTAMP} AND {TIMESTAMP}<={last_timestamp}'
-    return list(cursor.execute(cmd))
+                 end_dt: datetime):
+    cmd = f'SELECT * FROM {table_name} WHERE {start_dt.microsecond}<={TIMESTAMP} AND {TIMESTAMP}<={end_dt.microsecond}'
+    cursor.execute(cmd)
+    return cursor.fetchall()
 
 
 def insert_to_db(cursor: sqlite3.Cursor,
                  table_name,
-                 candles: list[list]):
+                 candles):
     cmd = f'INSERT OR IGNORE INTO {table_name} ' \
           f'VALUES ({",".join("?" for _ in range(np.shape(candles)[1]))})'
     cursor.executemany(cmd, candles)
@@ -79,13 +73,29 @@ def get_sample_frame(max_records=1000):
     except sqlite3.OperationalError:
         return None
 
-    curses = connection.cursor()
-    for table_name in curses.execute('SELECT name FROM sqlite_master WHERE type="table"'):
-        candles = list(curses.execute(f'SELECT * FROM {table_name} LIMIT {max_records}'))
+    cursor = connection.cursor()
+    cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
+    available_tables = [t[0] for t in cursor.fetchall()]
+    for table_name in available_tables:
+        cursor.execute(f'SELECT * FROM {table_name} LIMIT {max_records}')
+        candles = cursor.fetchall()
         if len(candles) > 0:
-            return candles
+            return parse_raw_candles(candles)
 
     return None
+
+
+def parse_raw_candles(candles):
+    candles = np.array(candles)
+    df = pd.DataFrame()
+    for i, (key, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
+        col_name = ''.join(word.capitalize() for word in key.split('_'))
+        df[col_name] = candles[:, i].astype(np.int if val_type == ResponseDTypes.INT else np.float)
+
+    df['Date'] = pd.to_datetime(df.Timestamp * 1e6)
+    df.drop(TIMESTAMP.capitalize(), axis=1, inplace=True)
+    df.set_index('Date', inplace=True)
+    return df
 
 
 @lru_cache(maxsize=20)
@@ -114,8 +124,8 @@ def load_candles_history(
     connection = create_db_connection(table_name)
     cursor = connection.cursor()
 
-    candles = load_from_db(cursor, table_name, start_dt, end_dt, interval_ms)
-    if len(candles) < candles_num - 3:  # (\/)(*--*)(\/)
+    candles = load_from_db(cursor, table_name, start_dt, end_dt)
+    if len(candles) != candles_num:
         client = client or Client()
 
         binance_response = client.get_historical_klines(pair_sym, interval, str(start_dt), str(end_dt))
@@ -124,12 +134,7 @@ def load_candles_history(
         insert_to_db(cursor, table_name, candles)
         connection.commit()
 
-    candles = np.array(candles)
-    df = pd.DataFrame()
-    for i, (key, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
-        col_name = ''.join(word.capitalize() for word in key.split('_'))
-        df[col_name] = candles[:, i].astype(np.int if val_type == ResponseDTypes.INT else np.float)
-
+    df = parse_raw_candles(candles)
     if read_orderbook:
         orderbook = load_orderbook_history(pair_sym, df.index, max_lag=timedelta(milliseconds=interval_ms))
         df = df.join(orderbook)

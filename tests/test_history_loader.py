@@ -4,7 +4,7 @@ from unittest import TestCase
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
-from jellyfish.constants import CANDLES_HISTORY_PATH
+from jellyfish.constants import CANDLES_DB_PATH
 from jellyfish.core import Client
 from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
                                       get_sample_frame)
@@ -27,7 +27,7 @@ class TestCandlesLoader(TestCase):
         interval = interval
 
         clean_candles_cache()
-        self.assertEqual(len(list(CANDLES_HISTORY_PATH.iterdir())), 0)
+        self.assertFalse(CANDLES_DB_PATH.exists())
 
         data = load_candles_history(pair, start_dt, end_dt, interval, client=Client())
         self.assertGreater(len(data), 0)
