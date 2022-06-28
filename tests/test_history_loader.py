@@ -4,7 +4,7 @@ from unittest import TestCase
 from dateutil import parser
 from pandas.testing import assert_frame_equal
 
-from jellyfish.constants import CANDLES_HISTORY_PATH
+from jellyfish.constants import CANDLES_DB_PATH
 from jellyfish.core import Client
 from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
                                       get_sample_frame)
@@ -12,29 +12,27 @@ from jellyfish.history_loader import (load_candles_history, clean_candles_cache,
 
 class TestOrderbookLoader(TestCase):
     def test_load(self):
-        pair = 'btcusdt'
+        pair = 'BTCUSDT'
         start_dt = datetime(year=2021, month=6, day=16)
         end_dt = start_dt + timedelta(days=1)
 
-        candles = load_candles_history(Client(), pair, start_dt, end_dt, interval='1m',
-                                       read_orderbook=True)
+        load_candles_history(pair, start_dt, end_dt, interval='1m', read_orderbook=True)
 
 
 class TestCandlesLoader(TestCase):
     def load_for_interval(self, interval, window_size: timedelta):
-        client = Client()
         pair = 'XRPUSDT'
         start_dt = parser.parse('2021-01-09 12:22')
         end_dt = start_dt + window_size
         interval = interval
 
         clean_candles_cache()
-        self.assertEqual(len(list(CANDLES_HISTORY_PATH.iterdir())), 0)
+        self.assertIsNone(get_sample_frame())
 
-        data = load_candles_history(client, pair, start_dt, end_dt, interval)
+        data = load_candles_history(pair, start_dt, end_dt, interval, client=Client())
         self.assertGreater(len(data), 0)
 
-        cached_data = load_candles_history(None, pair, start_dt, end_dt, interval)
+        cached_data = load_candles_history(pair, start_dt, end_dt, interval, client=None)  # offline mode simulation
         assert_frame_equal(data, cached_data)
 
     def test_load_btc_history_1d(self):
@@ -47,17 +45,22 @@ class TestCandlesLoader(TestCase):
         clean_candles_cache()
         self.assertIsNone(get_sample_frame())
 
-        load_candles_history(Client(), 'XRPUSDT', parser.parse('2021-01-08 12:22'),
-                             parser.parse('2021-01-09 12:22'), '1h')
+        load_candles_history('XRPUSDT', parser.parse('2021-01-08 12:22'), parser.parse('2021-01-09 12:22'), '1h')
         self.assertIsNotNone(get_sample_frame())
+
+        max_records = 3
+        data = get_sample_frame(max_records=max_records)
+        self.assertEqual(len(data), max_records)
+
 
     def test_define_candles_num(self):
         candles_num = 123
-        df = load_candles_history(Client(), 'XRPUSDT', start_dt=parser.parse('2021-01-08 12:22'),
+        pair_sym = 'XRPUSDT'
+        df = load_candles_history(pair_sym, start_dt=parser.parse('2021-01-08 12:22'),
                                   candles_num=candles_num, interval='1h')
         self.assertEqual(len(df), candles_num)
 
-        df = load_candles_history(Client(), 'XRPUSDT', end_dt=parser.parse('2021-01-08 12:22'),
+        df = load_candles_history(pair_sym, end_dt=parser.parse('2021-01-08 12:22'),
                                   candles_num=candles_num, interval='1h')
         self.assertEqual(len(df), candles_num)
 

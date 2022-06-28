@@ -89,7 +89,7 @@ class Backtest(backtesting.Backtest):
             stats['Sharpe Ratio'] = (returns.mean() * (tpy ** 0.5) - rf_rate) / returns.std()
             stats['Calmar Ratio'] = returns.mean() * tpy / drawdown.max()
 
-        if returns[returns < 0].std() != 0:
+        if returns[returns < 0].std() != 0 and tpy is not None:
             stats['Sortino Ratio'] = (returns.mean() * np.sqrt(tpy) - rf_rate) \
                                      / returns[returns < 0].std()
 

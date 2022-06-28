@@ -7,7 +7,7 @@ from jellyfish import transform, indicator
 from jellyfish.transform import sampling
 from jellyfish.history_loader import load_candles_history
 from jellyfish.core import Backtest, Client
-from jellyfish.core._strategy import SmaCross, BuyAndHold
+from jellyfish.core.strategy import SmaCross, BuyAndHold
 
 
 # noinspection PyAttributeOutsideInit
@@ -32,7 +32,7 @@ class Test(TestCase):
     def test_heiken_ashi_strategy(self):
         end_dt = datetime(year=2022, month=4, day=3)
         start_dt = end_dt - timedelta(days=30 * 3)
-        frame = load_candles_history(Client(), 'XRPUSDT', start_dt, end_dt, '1h')
+        frame = load_candles_history('XRPUSDT', start_dt, end_dt, '1h')
 
         bt = Backtest(frame, BuyAndHold)
         columns = ['Sharpe Ratio', 'Calmar Ratio', 'Sortino Ratio']

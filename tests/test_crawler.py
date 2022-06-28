@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from jellyfish.constants import ORDERBOOK_PATH
 from jellyfish.crawler import Crawler
-from jellyfish.crawler._daemon import Daemon
+from jellyfish.crawler.daemon import Daemon
 
 
 class TestCrawler(TestCase):

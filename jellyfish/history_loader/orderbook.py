@@ -38,7 +38,7 @@ def _read_orderbook(path: Path):
 
 
 def load_orderbook_history(pair_sym: str,
-                           dates: List[datetime],
+                           dates: pd.Index,
                            max_lag=timedelta(days=1)):
     """
     Load orderbook history data

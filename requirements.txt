@@ -9,7 +9,6 @@ unicorn-binance-rest-api
 python-dateutil
 click
 stocktrends
-jellyfish
 matplotlib
 hurst
 plotly
