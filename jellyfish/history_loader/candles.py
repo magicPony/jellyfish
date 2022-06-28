@@ -7,13 +7,15 @@ import numpy as np
 import pandas as pd
 from unicorn_binance_rest_api.helpers import interval_to_milliseconds
 
-from jellyfish.constants import CANDLES_DB_PATH
+from jellyfish.constants import (CANDLES_DB_PATH, OPEN, HIGH, LOW, CLOSE, VOLUME,
+                                 QUOTE_ASSET_VOLUME, NUM_OF_TRADES, TAKER_BUY_ASSET_VOLUME,
+                                 TAKER_SELL_ASSET_VOLUME)
 from jellyfish.core import Client
 from jellyfish.history_loader.orderbook import load_orderbook_history
 
 CANDLES_IN_CHUNK = 1000
 
-TIMESTAMP = 'timestamp'
+TIMESTAMP = 'Timestamp'
 
 
 class ResponseDTypes(Enum):
@@ -25,16 +27,16 @@ class ResponseDTypes(Enum):
 
 
 RESPONSE_STRUCTURE = {
-    'open': ResponseDTypes.REAL,
-    'high': ResponseDTypes.REAL,
-    'low': ResponseDTypes.REAL,
-    'close': ResponseDTypes.REAL,
-    'volume': ResponseDTypes.REAL,
+    OPEN: ResponseDTypes.REAL,
+    HIGH: ResponseDTypes.REAL,
+    LOW: ResponseDTypes.REAL,
+    CLOSE: ResponseDTypes.REAL,
+    VOLUME: ResponseDTypes.REAL,
     TIMESTAMP: ResponseDTypes.INT,
-    'quote_asset_volume': ResponseDTypes.REAL,
-    'num_of_trades': ResponseDTypes.INT,
-    'taker_buy_asset_volume': ResponseDTypes.REAL,
-    'taker_sell_asset_volume': ResponseDTypes.REAL
+    QUOTE_ASSET_VOLUME: ResponseDTypes.REAL,
+    NUM_OF_TRADES: ResponseDTypes.INT,
+    TAKER_BUY_ASSET_VOLUME: ResponseDTypes.REAL,
+    TAKER_SELL_ASSET_VOLUME: ResponseDTypes.REAL
 }
 
 
@@ -107,8 +109,7 @@ def parse_raw_candles(raw_candles):
     """
     raw_candles = np.array(raw_candles)
     frame = pd.DataFrame()
-    for i, (key, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
-        col_name = ''.join(word.capitalize() for word in key.split('_'))
+    for i, (col_name, val_type) in enumerate(RESPONSE_STRUCTURE.items()):
         frame[col_name] = raw_candles[:, i].astype(
             np.int if val_type == ResponseDTypes.INT else np.float)
 
