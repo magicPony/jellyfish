@@ -5,8 +5,8 @@ import numpy as np
 import plotly.express as px
 
 from jellyfish import indicator
+from jellyfish.core import Strategy, Backtest
 from jellyfish.history_loader import load_candles_history
-from jellyfish.core import Client, Strategy, Backtest
 
 
 class DummyWithIndicators(Strategy):

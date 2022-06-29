@@ -2,9 +2,8 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from jellyfish import transform, utils
-from jellyfish.transform import sampling
 from jellyfish.history_loader import load_candles_history
-from jellyfish.core import Client
+from jellyfish.transform import sampling
 
 
 class TestTransform(TestCase):
