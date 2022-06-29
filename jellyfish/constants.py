@@ -7,10 +7,10 @@ BASE_PATH = Path(__file__).parent
 
 # Path constants
 RESOURCES_PATH = BASE_PATH / 'resources'
-PRIVATE_DATA_PATH = RESOURCES_PATH / 'private_data'
 CACHE_PATH = RESOURCES_PATH / '.cache'
 ORDERBOOK_PATH = RESOURCES_PATH / 'orderbook'
 CANDLES_DB_PATH = CACHE_PATH / 'candles.db'
+DOTENV_PATH = RESOURCES_PATH / '.env'
 
 # Frame column names
 DATE = 'Date'
@@ -27,7 +27,7 @@ ORDERBOOK = 'Orderbook'
 
 
 def create_directories():
-    for dir_path in (RESOURCES_PATH, PRIVATE_DATA_PATH, CACHE_PATH, ORDERBOOK_PATH):
+    for dir_path in (RESOURCES_PATH, CACHE_PATH, ORDERBOOK_PATH):
         dir_path.mkdir(exist_ok=True, parents=True)
 
 

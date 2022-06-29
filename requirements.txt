@@ -16,3 +16,4 @@ service
 requests
 pytimeparse
 psutil
+python-dotenv
