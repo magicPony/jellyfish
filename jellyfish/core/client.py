@@ -1,34 +1,25 @@
 """
 Unicorn-Binance rest API manager wrapper
 """
+import dotenv
 import logging
-import json
-
 from unicorn_binance_rest_api import BinanceRestApiManager
 
-from jellyfish.constants import PRIVATE_DATA_PATH
+from jellyfish.constants import DOTENV_PATH
 
 
 def _load_binance_credentials():  # pragma: no cover
     """
     Loads json with Binance API credentials
-    :return: json with creds
+    :return: Binance (key, secret) pair
     """
-    try:
-        with (PRIVATE_DATA_PATH / 'binance_creds.json').open() as creds_file:
-            return json.load(creds_file)
-
-    except FileNotFoundError as exc:
-        logging.warning(exc)
-        return {
-            'key': None,
-            'secret': None
-        }
+    private_data = dotenv.dotenv_values(DOTENV_PATH)
+    return private_data.get('BINANCE_KEY'), private_data.get('BINANCE_SECRET')
 
 
 class Client(BinanceRestApiManager):
     """
-    Binance reset manager client
+    Binance rest manager client
     """
     SPOT_EXCHANGE = 'binance.com'
     FUTURES_EXCHANGE = 'binance.com-futures'
@@ -43,8 +34,7 @@ class Client(BinanceRestApiManager):
         key = None
         secret = None
         if not demo_user:
-            creds = _load_binance_credentials()
-            key = creds['key']
-            secret = creds['secret']
+            key, secret = _load_binance_credentials()
+            logging.error('Unable to locate credentials! Fallback to demo user setup.')
 
         BinanceRestApiManager.__init__(self, api_key=key, api_secret=secret, exchange=exchange)
