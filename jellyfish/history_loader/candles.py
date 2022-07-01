@@ -42,19 +42,23 @@ RESPONSE_STRUCTURE = {
 
 def create_db_connection(table_name):
     """
+    Create candlestick cache database connection and create table if needed
+
     Parameters
     ----------
     table_name : db table name
 
     Returns
     -------
-    Create candlestick cache database connection
+    Database connection
     """
     connection = sqlite3.connect(CANDLES_DB_PATH.as_posix())
     cursor = connection.cursor()
-    cmd = f'CREATE TABLE IF NOT EXISTS {table_name} ' \
-          f'({",".join(f"{k} {v.value}" for k, v in RESPONSE_STRUCTURE.items())},' \
-          f'PRIMARY KEY({TIMESTAMP}))'
+    cmd = 'CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY(%s))' % (
+        table_name,
+        # pass field name with field type separated with coma
+        ','.join(f'{k} {v.value}' for k, v in RESPONSE_STRUCTURE.items()),
+        TIMESTAMP)
     cursor.execute(cmd)
 
     return connection
